@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
+
 
 /*
 # define BLACK	"\033[0;30m"
