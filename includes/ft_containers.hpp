@@ -8,7 +8,9 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-
+#include "vector.hpp"
+#include "iterator_traits.hpp"
+#include "type_traits.hpp"
 
 /*
 # define BLACK	"\033[0;30m"
