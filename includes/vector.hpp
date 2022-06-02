@@ -5,14 +5,13 @@
 #ifndef __VECTOR_HPP__
 # define __VECTOR_HPP__
 
-#include <iostream>
 #include "ft_containers.hpp"
 
 namespace ft{
 template <class T, class Allocator = std::allocator<T> >
 class vector
 {
-    //MEMBER TYPES
+    // MEMBER TYPES
         typedef T                                                       value_type;
 		typedef Alloc                                                   allocator_type;
 		typedef typename allocator_type::reference                      reference;
@@ -25,7 +24,8 @@ class vector
 		// typedef typename ft::random_access_iterator<const_pointer>      const_iterator;
 		// typedef typename ft::reverse_iterator<pointer>                  reverse_iterator;
 		// typedef typename ft::reverse_iterator<const_pointer>            const_reverse_iterator;
-    //CONSTRUCTORS
+
+    // CONSTRUCTORS
 
     // default
     explicit vector (const allocator_type& alloc = allocator_type()) : _alloc(alloc), _size(0), _capacity(0), _vec(NULL){};
@@ -43,19 +43,23 @@ class vector
         for(size_type i; i < n; i++)
             _alloc.construct(_vec + 1, val);
     }
-    //range
+    // range
     template <class InputIterator>
         vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
          typename enable_if<!is_integral<InputIterator>::value>::type* = 0)) : _alloc(alloc), _size(last - first), _capacity(last - first), _vec(NULL)
          {
             if (_size <= 0)
                 return ;
+
             _vec = _alloc.allocate(_capacity);
+
             for(size_type i = 0; first != last; first++, i++)
                 _alloc.construct(_vec + i, *first);
          }
     // copy
-    vector (const vector& x);
+    vector (const vector& x){
+        return (*this);
+    };
 
     public:
 
@@ -66,7 +70,7 @@ class vector
         allocator_type  _alloc;
 		size_t      	_size;
 		sizet	        _capacity;
-		T*		        _vec;
+		pointer         _vec;
 
 };
 }
