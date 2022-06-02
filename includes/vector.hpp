@@ -45,7 +45,15 @@ class vector
     }
     //range
     template <class InputIterator>
-         vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type());
+        vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
+         typename enable_if<!is_integral<InputIterator>::value>::type* = 0)) : _alloc(alloc), _size(last - first), _capacity(last - first), _vec(NULL)
+         {
+            if (_size <= 0)
+                return ;
+            _vec = _alloc.allocate(_capacity);
+            for(size_type i = 0; first != last; first++, i++)
+                _alloc.construct(_vec + i, *first);
+         }
     // copy
     vector (const vector& x);
 
