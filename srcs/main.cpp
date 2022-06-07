@@ -1,11 +1,8 @@
-//***************************//
-//*Template by pulgamecanica*//
-//***************************//
-
 #include "ft_containers.hpp"
 
 int	main(void)
 {
-	std::cout << "Hello Friend\nPulgamecanica greets you :D\n";
+	ft::vector<int>		a;
+	std::vector<int>	b;
 	return (0);
 }
