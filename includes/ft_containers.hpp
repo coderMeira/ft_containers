@@ -11,6 +11,8 @@
 #include "vector.hpp"
 #include "iterator_traits.hpp"
 #include "type_traits.hpp"
+#include "random_access_iterator.hpp"
+#include "reverse_iterator.hpp"
 #include <iterator>
 
 /*
