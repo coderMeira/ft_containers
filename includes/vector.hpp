@@ -71,28 +71,72 @@ class vector
     }
 
 	//*** FUNCTIONS ***
-    iterator begin(void)
-    {
+
+    //  Iterators
+    iterator begin(void){
         return(iterator(_vec));
+    };
+
+    const_iterator begin() const{
+        return (const_iterator(_vec));
+    };
+
+    iterator end(void){
+        return (iterator(_vec + _size))
+    };
+
+    const_iterator end() const {
+		return const_iterator(_vec + _size);
+	};
+
+    reverse_iterator rbegin() {
+        return reverse_iterator(_vec + _size - 1);
+	};
+
+    const_reverse_iterator rbegin() const {
+        return const_reverse_iterator(_vec + _size - 1);
+        }
+    // Capacity
+	size_type size(void){
+	    return (_size);
+	};
+
+    size_type   max_size() const{
+        return (alloc.max_size());
+    };
+
+    void resize (size_type n, value_type val = value_type()){
+        if (n > _size){
+            ;
+        }
+        else if (n < _size){
+            while (n--)
+                _alloc.destroy(_vec[_size--]);
+        }
     }
 
-    const_iterator begin() const
-    {
-        return (const_iterator(_vec));
-    }
-	size_t size(void)
-	{
-	return (size_);
-	};
+    void reserve (size_type n){
+        if (n > alloc_.max_size())
+            throw std::length_error("Value passed to ft::vector::reserve() is too large");
+        if (n > _capacity){
+                pointer temp = _alloc.allocate(n);
+                for (size_type i = 0; i < _size; i++){
+                    _alloc.construct(temp[i], _vec[i]);
+                    _alloc.destroy(_vec[i]);
+                }
+                _alloc.deallocate(_vec, _capacity);
+                _vec = temp;
+                _capacity = n;
+            }
+    };
 
 	private:
         allocator_type  _alloc;
-		size_t      	_size;
-		sizet	        _capacity;
+		size_type      	_size;
+		size_t	        _capacity;
 		pointer         _vec;
 };
 }
 
 // std::ostream&	operator<<(std::ostream&, const vector&);
-#include "vector.tpp"
 #endif
