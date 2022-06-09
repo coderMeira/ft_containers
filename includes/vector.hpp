@@ -43,7 +43,7 @@ class vector
 
         for(size_type i; i < n; i++)
             _alloc.construct(_vec[i], val);
-    }
+    };
     // range constructor
     template <class InputIterator>
         vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
@@ -56,7 +56,7 @@ class vector
 
             for(size_type i = 0; first != last; first++, i++)
                 _alloc.construct(_vec[i], *first);
-         }
+         };
     // copy constructor
     vector (const vector& x){
         *this = x;
@@ -68,7 +68,7 @@ class vector
             _alloc.destroy(_vec[i]);
         for (i = 0; i < _capacity; i++)
             _alloc.deallocate(_vec[i]);
-    }
+    };
 
 	//*** FUNCTIONS ***
 
@@ -106,14 +106,22 @@ class vector
     };
 
     void resize (size_type n, value_type val = value_type()){
-        if (n > _size){
-            ;
+        if (n > _size)
+        {
+            if (n > _size * 2)
+                reserve(n);
+            for (size_type i = n - _size; i > 0; i--)
+                this->push_back(val);
         }
         else if (n < _size){
-            while (n--)
+            while (_size > n)
                 _alloc.destroy(_vec[_size--]);
         }
-    }
+    };
+
+    size_type capacity() const {
+		return _capacity;
+	};
 
     void reserve (size_type n){
         if (n > alloc_.max_size())
@@ -130,9 +138,41 @@ class vector
             }
     };
 
+	bool empty() const {
+        return (_size == 0 ? true : false);
+    };
+
+    // Element access
+    reference operator[] (size_type n) {
+        return reference(_vec[n]);
+    };
+
+    const_reference operator[] (size_type n) const {
+        return const_reference(_vec[n]);
+    };
+
+    reference at (size_type n);
+    const_reference at (size_type n) const;
+
+    reference front() {
+        return reference(*_vec);
+    };
+
+    const_reference front() const {
+        return const_reference(*_vec);
+    };
+
+    reference back() {
+        return reference(*(_vec[_size - 1]));
+    };
+
+    const_reference back() const {
+        return const_reference(*(_vec[_size - 1]));
+    };
+
 	private:
         allocator_type  _alloc;
-		size_type      	_size;
+		size_type      	    _size;
 		size_t	        _capacity;
 		pointer         _vec;
 };
