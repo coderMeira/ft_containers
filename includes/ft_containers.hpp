@@ -7,13 +7,13 @@
 
 #include <iostream>
 #include <memory>
-#include <vector>
-#include "vector.hpp"
 #include "iterator_traits.hpp"
 #include "type_traits.hpp"
 #include "random_access_iterator.hpp"
 #include "reverse_iterator.hpp"
 #include <iterator>
+#include <vector>
+#include "vector.hpp"
 
 /*
 # define BLACK	"\033[0;30m"

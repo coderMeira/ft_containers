@@ -24,12 +24,12 @@ namespace ft{
 		random_access_iterator(pointer ptr) : _pointer(ptr){};
 		// copy
 		template <class Iter>
-  		random_access_iterator(const random_access_iterator<Iter>& r_a_it) : _pointer(r_a_it.base()){};
+  		random_access_iterator(const random_access_iterator<Iter>& r_a_it) : _pointer(r_a_it.base()){}
 		random_access_iterator(const random_access_iterator& r_a_it){*this = r_a_it;}
 		// = operator
-		random_access_iterator & operator=(const random_access_iterator& rhs) {return *this;};
+		random_access_iterator & operator=(const random_access_iterator& rhs) {return *this;}
 		// destructor
-		~random_access_iterator(){};
+		~random_access_iterator(){}
 
 
  		// Forward iterator requirements
@@ -53,12 +53,12 @@ namespace ft{
 		random_access_iterator & operator--() {
 			--_pointer;
 			return (*this);
-		};
-
-		random_access_iterator operator--()
-		{
-			return (random_access_iterator(_pointer--));
 		}
+
+		// random_access_iterator operator--()
+		// {
+		// 	return (random_access_iterator(_pointer--));
+		// }
 
 		// Random access iterator requirements
 		reference operator[](difference_type n) const

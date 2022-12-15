@@ -60,12 +60,6 @@ struct is_integral_helper<long> : public true_type { };
 template<>
 struct is_integral_helper<unsigned long> : public true_type { };
 
-template<>
-struct is_integral_helper<long long> : public true_type { };
-
-template<>
-struct is_integral_helper<unsigned long long> : public true_type { };
-
 // remove cv
 
 template<class T>
