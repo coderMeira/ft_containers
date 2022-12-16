@@ -76,6 +76,51 @@ class vector
 
 	//*** FUNCTIONS ***
 
+    // Element access
+
+    reference at (size_type n) {
+        if (n >= size_) {
+            std::stringstream error;
+            error << "vector::_M_range_check: __n (which is " << n << ") >= this->size() (which is " << size_ << ")";
+            throw(std::out_of_range(error.str()));
+		}
+		return reference(vec_[n]);
+    }
+
+    const_reference at (size_type n) const {
+        if (n >= size_) {
+            std::stringstream error;
+            error << "vector::_M_range_check: __n (which is " << n << ") >= this->size() (which is " << size_ << ")";
+            throw(std::out_of_range(error.str()));
+        }
+		return const_reference(vec_[n]);
+    }
+
+    reference operator[] (size_type n) {
+        return reference(vec_[n]);
+    }
+
+    const_reference operator[] (size_type n) const {
+        return const_reference(vec_[n]);
+    }
+
+
+    reference front() {
+        return reference(*vec_);
+    }
+
+    const_reference front() const {
+        return const_reference(*vec_);
+    }
+
+    reference back() {
+        return reference(*(vec_[size_ - 1]));
+    }
+
+    const_reference back() const {
+        return const_reference(*(vec_[size_ - 1]));
+    }
+
     //  Iterators
     iterator begin(void){
         return(iterator(vec_));
@@ -99,7 +144,16 @@ class vector
 
     const_reverse_iterator rbegin() const {
         return const_reverse_iterator(vec_ + size_ - 1);
-        }
+    }
+
+    reverse_iterator rend() {
+        return reverse_iterator(vec_);
+	}
+
+    const_reverse_iterator rend() const {
+        return const_reverse_iterator(vec_);
+    }
+
     // Capacity
 	size_type size(void){
 	    return (size_);
@@ -156,60 +210,7 @@ class vector
 
     iterator insert( const_iterator pos, const T& value ) {
 
-    }
-
-    // Element access
-    reference operator[] (size_type n) {
-        return reference(vec_[n]);
-    }
-
-    const_reference operator[] (size_type n) const {
-        return const_reference(vec_[n]);
-    }
-
-    reference at (size_type n) {
-        if (n >= size_) {
-            std::string error("vector::_M_range_check: n (which is ");
-				error += to_string(n)
-				         + std::string(")")
-						 + std::string(" >= this->size() ")
-						 + std::string("(which is "
-						 + to_string(_size)
-						 + std::string(")"));
-				throw(std::out_of_range(error));
-			}
-		return reference(_buffer[n]);
-    }
-
-    const_reference at (size_type n) const {
-            if (n >= size_) {
-            std::string error("vector::_M_range_check: n (which is ");
-				error += to_string(n)
-				         + std::string(")")
-						 + std::string(" >= this->size() ")
-						 + std::string("(which is "
-						 + to_string(_size)
-						 + std::string(")"));
-				throw(std::out_of_range(error));
-			}
-		return const_reference(_buffer[n]);
-    }
-
-    reference front() {
-        return reference(*vec_);
-    }
-
-    const_reference front() const {
-        return const_reference(*vec_);
-    }
-
-    reference back() {
-        return reference(*(vec_[size_ - 1]));
-    }
-
-    const_reference back() const {
-        return const_reference(*(vec_[size_ - 1]));
-    }
+    };
 
 	private:
         allocator_type  alloc_;

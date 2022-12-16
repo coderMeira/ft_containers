@@ -13,7 +13,8 @@ int	main(void)
 
 	// std::vector<int>::iterator it = b.begin();
 
-	std::cout << b.at(12);
+	std::cout << b.at(2);
+	std::cout << "\ndata is" << b.data();
 
 	return (0);
 }
