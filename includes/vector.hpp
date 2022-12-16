@@ -30,6 +30,7 @@ class vector
 
     // default constructor
     explicit vector (const allocator_type& alloc = allocator_type()) : alloc_(alloc), size_(0), capacity_(0), vec_(NULL){};
+
     // fill constructor
     explicit vector (size_type n, const value_type& val = value_type(), const allocator_type& alloc = allocator_type()) : alloc_(alloc), size_(n), capacity_(n), vec_(NULL)
     {
@@ -44,11 +45,12 @@ class vector
         for(size_type i; i < n; i++)
             alloc_.construct(vec_[i], val);
     };
+
     // range constructor
     template <class InputIterator>
     vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
         typename   enable_if<!is_integral<InputIterator>::value>::type* = 0) : alloc_(alloc), size_(last - first), capacity_(last - first), vec_(NULL)
-        {
+    {
         if (size_ <= 0)
             return ;
 
@@ -56,18 +58,20 @@ class vector
 
         for(size_type i = 0; first != last; first++, i++)
             alloc_.construct(vec_[i], *first);
-        }
+    }
+
     // copy constructor
     vector (const vector& x){
         *this = x;
     };
 
+    // Destructor
     ~vector()
     {
-        for (size_type i = 0; i < size_; i++)
-            alloc_.destroy(vec_[i]);
-        for (size_type i = 0; i < capacity_; i++)
-            alloc_.deallocate(vec_[i]);
+        clear();
+        if (capacity_ > 0)
+            alloc_.deallocate(vec_, capacity_);
+        capacity_ = 0;
     };
 
 	//*** FUNCTIONS ***
@@ -142,6 +146,18 @@ class vector
         return (size_ == 0 ? true : false);
     }
 
+    // Modifiers
+    void clear() {
+        for (size_type i = 0; i < size_; i++) {
+            alloc_.destroy(vec_ + i);
+        }
+        size_ = 0;
+    }
+
+    iterator insert( const_iterator pos, const T& value ) {
+
+    }
+
     // Element access
     reference operator[] (size_type n) {
         return reference(vec_[n]);
@@ -151,8 +167,33 @@ class vector
         return const_reference(vec_[n]);
     }
 
-    reference at (size_type n);
-    const_reference at (size_type n) const;
+    reference at (size_type n) {
+        if (n >= size_) {
+            std::string error("vector::_M_range_check: n (which is ");
+				error += to_string(n)
+				         + std::string(")")
+						 + std::string(" >= this->size() ")
+						 + std::string("(which is "
+						 + to_string(_size)
+						 + std::string(")"));
+				throw(std::out_of_range(error));
+			}
+		return reference(_buffer[n]);
+    }
+
+    const_reference at (size_type n) const {
+            if (n >= size_) {
+            std::string error("vector::_M_range_check: n (which is ");
+				error += to_string(n)
+				         + std::string(")")
+						 + std::string(" >= this->size() ")
+						 + std::string("(which is "
+						 + to_string(_size)
+						 + std::string(")"));
+				throw(std::out_of_range(error));
+			}
+		return const_reference(_buffer[n]);
+    }
 
     reference front() {
         return reference(*vec_);
