@@ -106,19 +106,27 @@ class vector
 
 
     reference front() {
-        return reference(*vec_);
+        return (reference(*vec_));
     }
 
     const_reference front() const {
-        return const_reference(*vec_);
+        return (const_reference(*vec_));
     }
 
     reference back() {
-        return reference(*(vec_[size_ - 1]));
+        return (reference(*(vec_[size_ - 1])));
     }
 
     const_reference back() const {
-        return const_reference(*(vec_[size_ - 1]));
+        return (const_reference(*(vec_[size_ - 1])));
+    }
+
+    value_type* data() {
+        return (vec_);
+    }
+
+    const value_type* data() const {
+        return (const_pointer(vec_));
     }
 
     //  Iterators
@@ -135,70 +143,57 @@ class vector
     }
 
     const_iterator end() const {
-		return const_iterator(vec_ + size_);
+		return (const_iterator(vec_ + size_));
 	}
 
     reverse_iterator rbegin() {
-        return reverse_iterator(vec_ + size_ - 1);
+        return (reverse_iterator(vec_ + size_ - 1));
 	}
 
     const_reverse_iterator rbegin() const {
-        return const_reverse_iterator(vec_ + size_ - 1);
+        return (const_reverse_iterator(vec_ + size_ - 1));
     }
 
     reverse_iterator rend() {
-        return reverse_iterator(vec_);
+        return (reverse_iterator(vec_));
 	}
 
     const_reverse_iterator rend() const {
-        return const_reverse_iterator(vec_);
+        return (const_reverse_iterator(vec_));
     }
 
     // Capacity
+
+	bool empty() const {
+        return (size_ == 0 ? true : false);
+    }
+
 	size_type size(void){
 	    return (size_);
 	}
 
-    size_type   maxsize_() const{
+    size_type   max_size_() const{
         return (alloc_.maxsize_());
     }
 
-    void resize (size_type n, value_type val = value_type()){
-        if (n > size_)
-        {
-            if (n > size_ * 2)
-                reserve(n);
-            for (size_type i = n - size_; i > 0; i--)
-                this->push_back(val);
-        }
-        else if (n < size_){
-            while (size_ > n)
-                alloc_.destroy(vec_[size_--]);
-        }
-    };
-
-    size_type capacity() const {
-		return capacity_;
-	}
-
     void reserve (size_type n){
-        if (n > alloc_.maxsize_())
+        if (n > alloc_.max_size())
             throw std::length_error("Value passed to ft::vector::reserve() is too large");
         if (n > capacity_){
                 pointer temp = alloc_.allocate(n);
                 for (size_type i = 0; i < size_; i++){
-                    alloc_.construct(temp[i], vec_[i]);
-                    alloc_.destroy(vec_[i]);
+                    alloc_.construct(temp + i, vec_[i]);
+                    alloc_.destroy(vec_ + i);
                 }
                 alloc_.deallocate(vec_, capacity_);
                 vec_ = temp;
                 capacity_ = n;
             }
-    };
-
-	bool empty() const {
-        return (size_ == 0 ? true : false);
     }
+
+    size_type capacity() const {
+		return (capacity_);
+	}
 
     // Modifiers
     void clear() {
@@ -208,9 +203,39 @@ class vector
         size_ = 0;
     }
 
-    iterator insert( const_iterator pos, const T& value ) {
+    iterator insert(const_iterator pos, const T& value ) {
+        size_t i = pos - begin();
+        pointer ptr = vec_[i];
+        if (capacity_ < size_ + 1)
+            reserve(1);
+        if (i != size_)
+            std::copy(pos, end(), ptr);
+        alloc_.construct(vec_[i], value);
+        size_++;
+        return (iterator(vec_[pos]));
+    }
 
-    };
+    void resize (size_type n, value_type val = value_type()){
+        if (n > size_)
+        {
+            if (n > size_ * 2)
+                reserve(n);
+            for (size_type i = n - size_; i > 0; i--)
+                push_back(val);
+        }
+        else if (n < size_){
+            while (size_ > n)
+                alloc_.destroy(vec_[size_--]);
+        }
+    }
+
+    void push_back(const value_type& val) {
+        if (!capacity_)
+            reserve(1);
+        else if (size_ >= capacity_)
+            reserve(2 * capacity_);
+        alloc_.construct(vec_ + size_++, val);
+    }
 
 	private:
         allocator_type  alloc_;

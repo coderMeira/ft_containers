@@ -19,15 +19,15 @@ namespace ft{
 
 		// CONSTRUCTORS
 		// default
-		random_access_iterator() : _pointer(pointer()){};
+		random_access_iterator() : pointer_(pointer()){};
 		// parametrized
-		random_access_iterator(pointer ptr) : _pointer(ptr){};
+		random_access_iterator(pointer ptr) : pointer_(ptr){};
 		// copy
 		template <class Iter>
-  		random_access_iterator(const random_access_iterator<Iter>& r_a_it) : _pointer(r_a_it.base()){}
+  		random_access_iterator(const random_access_iterator<Iter>& r_a_it) : pointer_(r_a_it.base()){}
 		random_access_iterator(const random_access_iterator& r_a_it){*this = r_a_it;}
 		// = operator
-		random_access_iterator & operator=(const random_access_iterator& rhs) {return *this;}
+		random_access_iterator & operator=(const random_access_iterator& rhs) {(void) rhs; return *this;}
 		// destructor
 		~random_access_iterator(){}
 
@@ -35,65 +35,73 @@ namespace ft{
  		// Forward iterator requirements
 		reference operator*() const
 		{
-			return (*_pointer);
+			return (*pointer_);
 		}
 
 		pointer operator->() const
 		{
-			return (_pointer);
+			return (pointer_);
 		}
 
 		random_access_iterator & operator++()
 		{
-			return (random_access_iterator(_pointer++));
+			++pointer_;
+			return (*this);
+		}
+
+		random_access_iterator operator++(int)
+		{
+			random_access_iterator temp;
+			temp.pointer_ = pointer_++;
+			return temp;
 		}
 
 		// Bidirectional iterator requirements
 
 		random_access_iterator & operator--() {
-			--_pointer;
+			--pointer_;
 			return (*this);
 		}
 
 		// random_access_iterator operator--()
 		// {
-		// 	return (random_access_iterator(_pointer--));
+		// 	return (random_access_iterator(pointer_--));
 		// }
 
 		// Random access iterator requirements
 		reference operator[](difference_type n) const
 		{
-			return (_pointer[n]);
+			return (pointer_[n]);
 		}
 
 		random_access_iterator& operator+=(difference_type n)
 		{
-			_pointer += n;
+			pointer_ += n;
 			return (*this);
 		}
 
 		random_access_iterator& operator-=(difference_type n)
 		{
-			_pointer -= n;
+			pointer_ -= n;
 			return (*this);
 		}
 
 		random_access_iterator operator+(difference_type n) const
 		{
-			return (random_access_iterator(_pointer + n));
+			return (random_access_iterator(pointer_ + n));
 		}
 
 		random_access_iterator operator-(difference_type n) const
 		{
-			return (random_access_iterator(_pointer - n));
+			return (random_access_iterator(pointer_ - n));
 		}
 
 		const pointer& base() const{
-			return (_pointer);
+			return (pointer_);
 		}
 
 		private:
-		pointer	_pointer;
+		pointer	pointer_;
 	};
 
 template <typename IteratorL, typename IteratorR>
