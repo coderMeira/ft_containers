@@ -37,7 +37,7 @@ class vector
         if (n == 0)
             return ;
 
-        if (n > alloc_.maxsize_())
+        if (n > alloc_.max_size())
             throw std::length_error("Value passed to ft::vector is too large");
 
         vec_ = alloc_.allocate(n);
@@ -75,9 +75,43 @@ class vector
     };
 
 	//*** FUNCTIONS ***
+    // Assign
+    vector& operator=( const vector& other ) {
+        if (this == &other)
+            return (*this);
+
+        clear();
+        if (capacity_ > 0)
+            alloc_.deallocate(vec_, capacity_);
+
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+        vec_ = alloc_.allocate(capacity_);
+
+        for (size_type i = 0; i < size_; i++)
+            alloc_.construct(vec_[i], other.vec_[i]);
+
+        return (*this);
+    }
+
+    void assign( size_type count, const T& value ) {
+        clear();
+        if (capacity_ > 0)
+            alloc_.deallocate(vec_, capacity_);
+
+        size_ = count;
+        capacity_ = count;
+        vec_ = alloc_.allocate(capacity_);
+
+        for (size_type i = 0; i < size_; i++)
+            alloc_.construct(vec_[i], value);
+    }
+
+    allocator_type get_allocator() const {
+        return (alloc_);
+    }
 
     // Element access
-
     reference at (size_type n) {
         if (n >= size_) {
             std::stringstream error;
@@ -103,7 +137,6 @@ class vector
     const_reference operator[] (size_type n) const {
         return const_reference(vec_[n]);
     }
-
 
     reference front() {
         return (reference(*vec_));
@@ -163,17 +196,16 @@ class vector
     }
 
     // Capacity
-
-	bool empty() const {
+	bool    empty() const {
         return (size_ == 0 ? true : false);
     }
 
-	size_type size(void){
+	size_type   size(void){
 	    return (size_);
 	}
 
-    size_type   max_size_() const{
-        return (alloc_.maxsize_());
+    size_type   max_size() const{
+        return (alloc_.max_size());
     }
 
     void reserve (size_type n){
@@ -215,6 +247,29 @@ class vector
         return (iterator(vec_[pos]));
     }
 
+    iterator erase( iterator pos ) {
+        size_t i = pos - begin();
+        pointer ptr = vec_[i];
+        alloc_.destroy(vec_[i]);
+        if (i != size_)
+            std::copy(pos + 1, end(), ptr);
+        size_--;
+        return (iterator(vec_[pos]));
+    }
+
+    void push_back(const value_type& val) {
+        if (!capacity_)
+            reserve(1);
+        else if (size_ >= capacity_)
+            reserve(2 * capacity_);
+        alloc_.construct(vec_ + size_++, val);
+    }
+
+    void pop_back(void) {
+        if (size_ > 0)
+            alloc_.destroy(vec_ + --size_);
+    }
+
     void resize (size_type n, value_type val = value_type()){
         if (n > size_)
         {
@@ -229,20 +284,46 @@ class vector
         }
     }
 
-    void push_back(const value_type& val) {
-        if (!capacity_)
-            reserve(1);
-        else if (size_ >= capacity_)
-            reserve(2 * capacity_);
-        alloc_.construct(vec_ + size_++, val);
+    void swap(vector& x) {
+        std::swap(alloc_, x.alloc_);
+        std::swap(size_, x.size_);
+        std::swap(capacity_, x.capacity_);
+        std::swap(vec_, x.vec_);
     }
 
-	private:
+    // Non-member function overloads
+
+    private:
         allocator_type  alloc_;
 		size_type      	size_;
 		size_t	        capacity_;
 		pointer         vec_;
 };
+    template <class T, class Alloc>
+    bool operator==( const vector<T,Alloc>& lhs,
+                    const vector<T,Alloc>& rhs ) {
+        if (lhs.size() != rhs.size())
+            return (false);
+        for (size_t i = 0; i < lhs.size(); i++)
+            if (lhs[i] != rhs[i])
+                return (false);
+        return (true);
+    }
+
+    template< class T, class Alloc >
+    bool operator!=( const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs ) {return (!(lhs == rhs));}
+
+    template< class T, class Alloc >
+    bool operator<( const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs ) {return(lhs.size() < rhs.size());}
+
+    template< class T, class Alloc >
+    bool operator<=( const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs ) {return (lhs.size() <= rhs.size());}
+
+    template< class T, class Alloc >
+    bool operator>( const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs ) {return (lhs.size() > rhs.size());}
+
+    template< class T, class Alloc >
+    bool operator>=( const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs ) {return (lhs.size() >= rhs.size());}
 }
 
 #endif

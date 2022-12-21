@@ -63,10 +63,12 @@ namespace ft{
 			return (*this);
 		}
 
-		// random_access_iterator operator--()
-		// {
-		// 	return (random_access_iterator(pointer_--));
-		// }
+		random_access_iterator operator--(int)
+		{
+			random_access_iterator temp;
+			temp.pointer_ = pointer_--;
+			return temp;
+		}
 
 		// Random access iterator requirements
 		reference operator[](difference_type n) const
