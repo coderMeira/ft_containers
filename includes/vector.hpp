@@ -2,8 +2,8 @@
 //*Template by pulgamecanica*//
 //***************************//
 
-#ifndef _vec_TOR_HPP__
-# define _vec_TOR_HPP__
+#ifndef _VECTOR_HPP_
+# define _VECTOR_HPP_
 
 #include "ft_containers.hpp"
 

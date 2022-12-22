@@ -17,6 +17,8 @@
 #include "random_access_iterator.hpp"
 #include "reverse_iterator.hpp"
 #include "vector.hpp"
+#include "pair.hpp"
+#include "map.hpp"
 
 
 template <typename T>
