@@ -42,8 +42,7 @@ namespace ft {
 
 		explicit map( const Compare& comp,
               const Allocator& alloc = Allocator() ) {
-			(void)comp;
-			(void)alloc;
+		
 		}
 
 		map( const map& other ) {
