@@ -1,5 +1,5 @@
 #pragma once
-#include "bst.hpp"
+#include "rbt.hpp"
 #include <string>
 #include <queue>
 
@@ -9,8 +9,8 @@ template <class T>
 class visualizer
 {
 
-	BST<T> tree_;
-	Node<T>* tree_root_;
+	RBT<T> tree_;
+	RBNode<T>* tree_root_;
 	int tree_height_;
 	int tree_nodes_;
 	string** values_;
@@ -23,14 +23,14 @@ class visualizer
 	int space_length_;
 	int space_shift_factor_;
 
-	queue<Node<T>*> breadth_first_search();
-	int get_tree_height(Node<T>*) const;
+	queue<RBNode<T>*> breadth_first_search();
+	int get_tree_height(RBNode<T>*) const;
 	int get_nodes_count(int) const;
 	int get_subtree_width(int) const;
 
 public:
 
-	explicit visualizer(BST<T> tree, int = -1, int = -1);
+	explicit visualizer(RBT<T> tree, int = -1, int = -1);
 	~visualizer() = default;
 	void visualize() const;
 };

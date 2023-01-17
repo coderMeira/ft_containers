@@ -4,8 +4,11 @@
 #include <iostream>
 #include <math.h>
 
+#define RED_CLR "\033[31m"
+#define RESET_CLR "\033[m"
+
 template <class T>
-visualizer<T>::visualizer(BST<T> tree, int node_length /* = -1 */, int space_length /* = -1 */)
+visualizer<T>::visualizer(RBT<T> tree, int node_length /* = -1 */, int space_length /* = -1 */)
 {
 
 	auto min_node_len = 0;
@@ -16,7 +19,7 @@ visualizer<T>::visualizer(BST<T> tree, int node_length /* = -1 */, int space_len
 	tree_root_            = tree_.get_root();
 	tree_height_          = get_tree_height(tree_root_);
 	tree_nodes_           = get_nodes_count(tree_height_) - 1;
-	queue<Node<T>*> nodes = breadth_first_search();
+	queue<RBNode<T>*> nodes = breadth_first_search();
 
 	// Initialize values_ array
 	values_ = new string*[tree_nodes_];
@@ -53,14 +56,14 @@ visualizer<T>::visualizer(BST<T> tree, int node_length /* = -1 */, int space_len
 }
 
 template <class T>
-queue<Node<T>*> visualizer<T>::breadth_first_search()
+queue<RBNode<T>*> visualizer<T>::breadth_first_search()
 {
-	queue<Node<T>*> temp, nodes;
+	queue<RBNode<T>*> temp, nodes;
 	temp.push(tree_root_);
 
 	for (auto i = 0; i < tree_nodes_; i++)
 	{
-		Node<T>* current = temp.front();
+		RBNode<T>* current = temp.front();
 		temp.pop();
 		nodes.push(current);
 
@@ -80,7 +83,7 @@ queue<Node<T>*> visualizer<T>::breadth_first_search()
 }
 
 template <class T>
-int visualizer<T>::get_tree_height(Node<T>* root) const
+int visualizer<T>::get_tree_height(RBNode<T>* root) const
 {
 	if (root == nullptr) return 0;
 	const int left_height  = get_tree_height(root->left);
@@ -123,7 +126,7 @@ void visualizer<T>::visualize() const
 		for (auto node = 0; node < nodes_count; node++)
 		{
 			const auto node_value = values_[level][node].empty() ? empty_node_ : values_[level][node];
-			cout << setw(node_length_) << setfill('0') << node_value;
+			cout << setw(node_length_) << setfill('0') << (!values_[level][node].empty() && tree_.checkNodeColor(stoi(node_value.c_str())) == BLACK_NODE ? node_value : RED_CLR + node_value + RESET_CLR);
 			cout << string(nodes_spacing * (node != last_node), ' ');
 		}
 

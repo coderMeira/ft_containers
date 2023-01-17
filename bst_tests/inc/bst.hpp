@@ -61,6 +61,16 @@ class BST {
     return (false);
   }
 
+  Node<T>*  findSucc(Node<T>* nd)
+  {
+    Node<T> * curr = nd;
+
+    while (curr && curr->left)
+      curr = curr->left;
+
+    return (curr);
+  }
+
   Node<T>* deleteNode(Node<T>* root, T value)
   {
     if (root == NULL)
@@ -68,7 +78,7 @@ class BST {
     if (value < root->data)
       root->left = deleteNode(root->left, value);
     else if (value > root->data)
-      deleteNode(root->right, value);
+       root->right = deleteNode(root->right, value);
 
     if (value == root->data)
     {
@@ -91,7 +101,9 @@ class BST {
       }
       else
       {
-
+        Node<T>*  succ = findSucc(root->right);
+        root->data = succ->data;
+        root->right = deleteNode(root->right, succ->data);
       }
     }
     return (root);
