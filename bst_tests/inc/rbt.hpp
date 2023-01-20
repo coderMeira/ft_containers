@@ -2,12 +2,14 @@
 #pragma once
 
 enum Color {RED_NODE, BLACK_NODE};
+enum Side {LEFT_SIDE, RIGHT_SIDE};
+
 
 template<typename T>
 struct RBNode
 {
   T             data;
-  bool          color;
+  Color         color;
   unsigned int  count;
   RBNode        *parent, *left, *right;
 
@@ -94,6 +96,48 @@ class RBT {
     ptr->parent = left_ptr;
   }
 
+  void fixSide(RBNode<T>* root, RBNode<T>* ptr, RBNode<T>* parent, RBNode<T>* grand_parent, Side side)
+  {
+    RBNode<T>* uncle = NULL;
+    if (side == LEFT_SIDE)
+      uncle = grand_parent->right;
+    else
+      uncle = grand_parent->left;
+
+    if (uncle != NULL && uncle->color == RED_NODE)
+    {
+      parent->color = BLACK_NODE;
+      uncle->color = BLACK_NODE;
+      grand_parent->color = RED_NODE;
+      ptr = grand_parent;
+    }
+    else
+    {
+      if (side == LEFT_SIDE)
+      {
+        if (ptr == parent->right)
+        {
+          rotateLeft(root, parent);
+          ptr = parent;
+          parent = ptr->parent;
+        }
+        rotateRight(root, grand_parent);
+      }
+      else
+      {
+        if (ptr == parent->left)
+        {
+          rotateRight(root, parent);
+          ptr = parent;
+          parent = ptr->parent;
+        }
+        rotateLeft(root, grand_parent);
+      }
+      std::swap(parent->color, grand_parent->color);
+      ptr = parent;
+    }
+  }
+
   void fixViolation(RBNode<T>* root, RBNode<T>* ptr)
   {
       RBNode<T>* parent = NULL;
@@ -105,54 +149,9 @@ class RBT {
       grand_parent = ptr->parent->parent;
 
       if (parent == grand_parent->left)
-      {
-        RBNode<T>* uncle = grand_parent->right;
-
-        if (uncle != NULL && uncle->color == RED_NODE)
-        {
-          grand_parent->color = RED_NODE;
-          parent->color = BLACK_NODE;
-          uncle->color = BLACK_NODE;
-          ptr = grand_parent;
-        }
-        else
-        {
-          if (ptr == parent->right)
-          {
-            rotateLeft(root, parent);
-            ptr = parent;
-            parent = ptr->parent;
-          }
-
-          rotateRight(root, grand_parent);
-          std::swap(parent->color, grand_parent->color);
-          ptr = parent;
-        }
-      }
+        fixSide(root, ptr, parent, grand_parent, LEFT_SIDE);
       else
-      {
-        RBNode<T>*  uncle = grand_parent->left;
-
-        if(uncle != NULL && uncle->color == RED_NODE)
-        {
-          grand_parent->color = RED_NODE;
-          parent->color = BLACK_NODE;
-          uncle->color = BLACK_NODE;
-          ptr = grand_parent;
-        }
-        else
-        {
-          if (ptr == parent->left)
-          {
-            rotateRight(root, parent);
-            ptr = parent;
-            parent = ptr->parent;
-          }
-          rotateLeft(root, grand_parent);
-          std::swap(parent->color, grand_parent->color);
-          ptr = parent;
-        }
-      }
+        fixSide(root, ptr, parent, grand_parent, RIGHT_SIDE);
     }
     root->color = BLACK_NODE;
   }
