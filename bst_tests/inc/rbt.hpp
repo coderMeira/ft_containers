@@ -16,14 +16,16 @@ struct RBNode
   RBNode(T data)
   {
     this->data = data;
-    parent = left = right = NULL;
     this->color = RED_NODE;
+    this->count = 0;
+    parent = left = right = NULL;
   }
 };
 
-template <typename T>
+template <class T, class Allocator = std::allocator<T> >
 class RBT {
-  RBNode<T> *root_;
+  RBNode<T>       *root_;
+  allocator_type  alloc_;
 
   RBNode<T>* insert(RBNode<T>* root, RBNode<T>* ptr)
   {
@@ -99,6 +101,7 @@ class RBT {
   void fixSide(RBNode<T>* root, RBNode<T>* ptr, RBNode<T>* parent, RBNode<T>* grand_parent, Side side)
   {
     RBNode<T>* uncle = NULL;
+
     if (side == LEFT_SIDE)
       uncle = grand_parent->right;
     else
@@ -156,13 +159,10 @@ class RBT {
     root->color = BLACK_NODE;
   }
 
-  bool  searchRBNode(const RBNode<T>* root, T value)
+  RBNode<T>*  searchRBNode(const RBNode<T>* root, T value)
   {
-    if (root == NULL)
-      return (false);
-
-    if (value == root->data)
-      return (true);
+    if (root == NULL || root->key == key)
+      return (root);
 
     else if (value < root->data)
       return (searchRBNode(root->left, value));
@@ -170,7 +170,7 @@ class RBT {
     else if (value > root->data)
       return (searchRBNode(root->right, value));
 
-    return (false);
+    return (root);
   }
 
   bool  checkNodeColor(RBNode<T>* root, T value) const
@@ -246,18 +246,37 @@ class RBT {
   }
 
   public:
+    typedef T                                                       value_type;
+		typedef Allocator                                               allocator_type;
+		typedef typename allocator_type::pointer                        pointer;
+		typedef typename allocator_type::const_pointer                  const_pointer;
+		typedef typename allocator_type::reference                      reference;
+		typedef typename allocator_type::const_reference                const_reference;
+		typedef typename std::size_t                                    size_type;
+		typedef typename std::ptrdiff_t                                 difference_type;
+		typedef typename ft::random_access_iterator < pointer >         iterator;
+		typedef typename ft::random_access_iterator < const_pointer >   const_iterator;
+		typedef typename ft::reverse_iterator<pointer>                  reverse_iterator;
+		typedef typename ft::reverse_iterator<const_pointer>            const_reverse_iterator;
 
     RBT(){root_ = NULL;}
 
     void insert(T data) {
-      RBNode<T>* ptr = new RBNode<T>(data);
-      root_ = insert(root_, ptr);
-      fixViolation(root_, ptr);
+      RBNode<T>* found = searchRBNode(data)
+      if (!found)
+      {
+        RBNode<T>* ptr = alloc_.allocate(1);
+        alloc_.construct(ptr, data);
+        root_ = insert(root_, ptr);
+        fixViolation(root_, ptr);
+      }
+      else
+        (found->count)++;
     }
 
     void printTree(){printTree(root_);}
 
-    bool searchRBNode(T value){return (searchRBNode(root_, value));}
+    RBNode<T>* searchRBNode(T value){return (searchRBNode(root_, value));}
 
     void deleteRBNode(T value){deleteRBNode(root_, value);};
 

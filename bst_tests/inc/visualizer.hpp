@@ -19,7 +19,7 @@ class visualizer
 	int node_type_;
 	int node_shift_factor_;
 	string empty_node_;
-
+data[cao]
 	int space_length_;
 	int space_shift_factor_;
 
