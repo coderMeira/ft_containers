@@ -208,6 +208,38 @@ class RBT {
     return (curr);
   }
 
+  Node<T>*  findReplacement(Node<T>* ptr)
+  {
+    if (ptr->left && ptr->right)
+      return (findSuccessor(ptr->right));
+    if (ptr->left == NULL && ptr->right == NULL)
+      return (NULL);
+    if (ptr->left)
+      return (ptr->left);
+    else
+      return (ptr->right);
+  }
+
+  Node<T>* deleteNode(Node<T>* node)
+  {
+    Node<T>* replacement = findReplacement(node);
+
+    if (node == root_)
+    {
+      if (replacement)
+      {
+        root_->data = replacement->data;
+        root_->count = replacement->count;
+        root_->left = root_->right = NULL;
+        delete (replacement);
+      }
+      else
+        delete (root_);
+      return (NULL);
+    }
+    
+  }
+
   Node<T>* deleteNode(Node<T>* root, T value)
   {
     if (root == NULL)
@@ -300,7 +332,19 @@ class RBT {
 
     Node<T>* searchNode(T value){return (searchNode(root_, value));}
 
-    void deleteNode(T value){deleteNode(root_, value);};
+    void deleteNode(T value)
+    {
+      if (root_ == NULL)
+        return;
+      Node<T>* found = searchNode(value);
+      if (found && found->data == value)
+      {
+        if (found->count > 1)
+          (found->count)--;
+        else
+          deleteNode(found);
+      }
+    };
 
     bool  checkNodeColor(T value) const {return (checkNodeColor(root_, value));};
 
