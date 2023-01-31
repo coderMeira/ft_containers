@@ -75,219 +75,10 @@ class Node
 
 template <class T, class Allocator = std::allocator<T> >
 class RBT {
-  Node<T>       *root_;
-  allocator_type  alloc_;
-
-  void rotate(Node<T>* ptr, Side side)
-  {
-    Node<T>* newParent = NULL;
-
-    if (side == LEFT_SIDE)
-      newParent = ptr->right;
-    else
-      newParent = ptr->left;
-
-    if (ptr == root_)
-      root_ = newParent;
-    ptr->moveDown(newParent);
-    if (side == LEFT_SIDE)
-    {
-      ptr->right = newParent->left;
-      if (newParent->left != NULL)
-        newParent->left->parent = ptr;
-      newParent->left = ptr;
-    }
-    else
-    {
-      ptr->left = newParent->right;
-      if (newParent->right != NULL)
-        newParent->right->parent = ptr;
-      newParent->right = ptr;
-    }
-  }
-
-  void fixSide(Node<T>* root, Node<T>* ptr, Node<T>* parent, Node<T>* grand_parent, Side side)
-  {
-    Node<T>* uncle = NULL;
-
-    if (side == LEFT_SIDE)
-      uncle = grand_parent->right;
-    else
-      uncle = grand_parent->left;
-
-    if (uncle != NULL && uncle->color == RED_NODE)
-    {
-      parent->color = BLACK_NODE;
-      uncle->color = BLACK_NODE;
-      grand_parent->color = RED_NODE;
-      ptr = grand_parent;
-    }
-    else
-    {
-      if (side == LEFT_SIDE)
-      {
-        if (ptr == parent->right)
-        {
-          rotate(parent, LEFT_SIDE);
-          ptr = parent;
-          parent = ptr->parent;
-        }
-        rotate(grand_parent, RIGHT_SIDE);
-      }
-      else
-      {
-        if (ptr == parent->left)
-        {
-          rotate(parent, RIGHT_SIDE);
-          ptr = parent;
-          parent = ptr->parent;
-        }
-        rotate(grand_parent, LEFT_SIDE);
-      }
-      std::swap(parent->color, grand_parent->color);
-      ptr = parent;
-    }
-  }
-
-  void fixViolation(Node<T>* root, Node<T>* ptr)
-  {
-      Node<T>* parent = NULL;
-      Node<T>* grand_parent = NULL;
-
-    while ((ptr != root) && (ptr->color != BLACK_NODE) && (ptr->parent->color == RED_NODE))
-    {
-      parent = ptr->parent;
-      grand_parent = ptr->parent->parent;
-
-      if (parent == grand_parent->left)
-        fixSide(root, ptr, parent, grand_parent, LEFT_SIDE);
-      else
-        fixSide(root, ptr, parent, grand_parent, RIGHT_SIDE);
-    }
-    root->color = BLACK_NODE;
-  }
-
-  Node<T>*  searchNode(const Node<T>* root, T value)
-  {
-    if (root == NULL || root->key == key)
-      return (root);
-
-    else if (value < root->data)
-      return (searchNode(root->left, value));
-
-    else if (value > root->data)
-      return (searchNode(root->right, value));
-
-    return (root);
-  }
-
-  bool  checkNodeColor(Node<T>* root, T value) const
-  {
-    if (root == NULL)
-      return (false);
-
-    if (value == root->data)
-      return (root->color);
-
-    else if (value < root->data)
-      return (checkNodeColor(root->left, value));
-
-    else if (value > root->data)
-      return (checkNodeColor(root->right, value));
-
-    return (false);
-  }
-
-  Node<T>*  findSuccessor(Node<T>* ptr)
-  {
-    Node<T> * curr = ptr;
-
-    while (curr && curr->left)
-      curr = curr->left;
-
-    return (curr);
-  }
-
-  Node<T>*  findReplacement(Node<T>* ptr)
-  {
-    if (ptr->left && ptr->right)
-      return (findSuccessor(ptr->right));
-    if (ptr->left == NULL && ptr->right == NULL)
-      return (NULL);
-    if (ptr->left)
-      return (ptr->left);
-    else
-      return (ptr->right);
-  }
-
-  Node<T>* deleteNode(Node<T>* node)
-  {
-    Node<T>* replacement = findReplacement(node);
-
-    if (node == root_)
-    {
-      if (replacement)
-      {
-        root_->data = replacement->data;
-        root_->count = replacement->count;
-        root_->left = root_->right = NULL;
-        delete (replacement);
-      }
-      else
-        delete (root_);
-      return (NULL);
-    }
-    
-  }
-
-  Node<T>* deleteNode(Node<T>* root, T value)
-  {
-    if (root == NULL)
-      return (root);
-    if (value < root->data)
-      root->left = deleteNode(root->left, value);
-    else if (value > root->data)
-       root->right = deleteNode(root->right, value);
-
-    if (value == root->data)
-    {
-      if (root->count > 1)
-      {
-        (root->count)--;
-        return (root);
-      }
-      if (root->left == NULL && root->right == NULL)
-      {
-        delete (root);
-        return (NULL);
-      }
-      else if (root->left && root->right == NULL)
-      {
-        Node<T>* tmp = root->left;
-        delete (root);
-        return (tmp);
-      }
-      else if (root->right && root->left == NULL)
-      {
-        Node<T>* tmp = root->right;
-        delete (root);
-        return (tmp);
-      }
-      else
-      {
-        Node<T>*  succ = findSuccessor(root->right);
-        root->data = succ->data;
-        root->count = succ->count;
-        succ->count = 0;
-        root->right = deleteNode(root->right, succ->data);
-      }
-    }
-    return (root);
-  }
-
   public:
     typedef T                                                       value_type;
-		typedef Allocator                                               allocator_type;
+    typedef typename Allocator::template rebind<Node<T> >::other    allocator_type;
+    typedef Node<T>*                                                node_ptr;
 		typedef typename allocator_type::pointer                        pointer;
 		typedef typename allocator_type::const_pointer                  const_pointer;
 		typedef typename allocator_type::reference                      reference;
@@ -299,54 +90,276 @@ class RBT {
 		typedef typename ft::reverse_iterator<pointer>                  reverse_iterator;
 		typedef typename ft::reverse_iterator<const_pointer>            const_reverse_iterator;
 
-    RBT(){root_ = NULL;}
+  RBT(){root_ = NULL;}
 
-    void insert(T data) {
-      Node<T>* found = searchNode(data)
+  private:
+    Node<T>         *root_;
+    allocator_type  alloc_;
 
-      if (found && found->data == data)
+    void rotate(node_ptr ptr, Side side)
+    {
+      node_ptr newParent = NULL;
+
+      if (side == LEFT_SIDE)
+        newParent = ptr->right;
+      else
+        newParent = ptr->left;
+
+      if (ptr == root_)
+        root_ = newParent;
+      ptr->moveDown(newParent);
+      if (side == LEFT_SIDE)
       {
-        found->count++;
-        return;
+        ptr->right = newParent->left;
+        if (newParent->left != NULL)
+          newParent->left->parent = ptr;
+        newParent->left = ptr;
       }
-      if (!found)
+      else
       {
-        Node<T>* ptr = alloc_.allocate(1);
-        alloc_.construct(ptr, data);
-        if (root_ == NULL)
-        {
-          root_ = ptr;
-          root_->color = BLACK_NODE;
-          return;
-        }
-        newNode->parent = found;
-        if (data < found->val)
-          found->left = newNode;
-        else
-          found->right = newNode;
-        fixViolation(root_, ptr);
+        ptr->left = newParent->right;
+        if (newParent->right != NULL)
+          newParent->right->parent = ptr;
+        newParent->right = ptr;
       }
     }
 
-    void printTree(){printTree(root_);}
-
-    Node<T>* searchNode(T value){return (searchNode(root_, value));}
-
-    void deleteNode(T value)
+    void fixSide(node_ptr root, node_ptr ptr, node_ptr parent, node_ptr grand_parent, Side side)
     {
-      if (root_ == NULL)
-        return;
-      Node<T>* found = searchNode(value);
-      if (found && found->data == value)
+      node_ptr uncle = NULL;
+
+      if (side == LEFT_SIDE)
+        uncle = grand_parent->right;
+      else
+        uncle = grand_parent->left;
+
+      if (uncle != NULL && uncle->color == RED_NODE)
       {
-        if (found->count > 1)
-          (found->count)--;
-        else
-          deleteNode(found);
+        parent->color = BLACK_NODE;
+        uncle->color = BLACK_NODE;
+        grand_parent->color = RED_NODE;
+        ptr = grand_parent;
       }
-    };
+      else
+      {
+        if (side == LEFT_SIDE)
+        {
+          if (ptr == parent->right)
+          {
+            rotate(parent, LEFT_SIDE);
+            ptr = parent;
+            parent = ptr->parent;
+          }
+          rotate(grand_parent, RIGHT_SIDE);
+        }
+        else
+        {
+          if (ptr == parent->left)
+          {
+            rotate(parent, RIGHT_SIDE);
+            ptr = parent;
+            parent = ptr->parent;
+          }
+          rotate(grand_parent, LEFT_SIDE);
+        }
+        std::swap(parent->color, grand_parent->color);
+        ptr = parent;
+      }
+    }
 
-    bool  checkNodeColor(T value) const {return (checkNodeColor(root_, value));};
+    void fixViolation(node_ptr root, node_ptr ptr)
+    {
+        node_ptr parent = NULL;
+        node_ptr grand_parent = NULL;
 
-    Node<T>*  get_root(){return root_;}
+      while ((ptr != root) && (ptr->color != BLACK_NODE) && (ptr->parent->color == RED_NODE))
+      {
+        parent = ptr->parent;
+        grand_parent = ptr->parent->parent;
+
+        if (parent == grand_parent->left)
+          fixSide(root, ptr, parent, grand_parent, LEFT_SIDE);
+        else
+          fixSide(root, ptr, parent, grand_parent, RIGHT_SIDE);
+      }
+      root->color = BLACK_NODE;
+    }
+
+    node_ptr  searchNode(const node_ptr root, T value)
+    {
+      if (root == NULL || root->key == key)
+        return (root);
+
+      else if (value < root->data)
+        return (searchNode(root->left, value));
+
+      else if (value > root->data)
+        return (searchNode(root->right, value));
+
+      return (root);
+    }
+
+    bool  checkNodeColor(node_ptr root, T value) const
+    {
+      if (root == NULL)
+        return (false);
+
+      if (value == root->data)
+        return (root->color);
+
+      else if (value < root->data)
+        return (checkNodeColor(root->left, value));
+
+      else if (value > root->data)
+        return (checkNodeColor(root->right, value));
+
+      return (false);
+    }
+
+    node_ptr  findSuccessor(node_ptr ptr)
+    {
+      Node<T> * curr = ptr;
+
+      while (curr && curr->left)
+        curr = curr->left;
+
+      return (curr);
+    }
+
+    node_ptr  findReplacement(node_ptr ptr)
+    {
+      if (ptr->left && ptr->right)
+        return (findSuccessor(ptr->right));
+      if (ptr->left == NULL && ptr->right == NULL)
+        return (NULL);
+      if (ptr->left)
+        return (ptr->left);
+      else
+        return (ptr->right);
+    }
+
+    void freeNode(node_ptr toFree)
+    {
+      if (!toFree || !toFree->parent)
+        return;
+      alloc_.destroy(ptr);
+      alloc_.deallocate(ptr, 1);
+      toFree = NULL;
+    }
+
+    void fixDoubleBlack(node_ptr ptr)
+    {
+      if (ptr == root_)
+        return;
+
+      node_ptr  sibling = ptr->sibling();
+      node_ptr  parent = ptr->parent;
+
+      if (sibling == NULL)
+        fixDoubleBlack(parent);
+      else
+      {
+        if (sibling->color == RED_NODE)
+        {
+          parent->color = RED_NODE;
+          sibling->color = BLACK_NODE;
+          if (sibling->isRedChild())
+            rotate(parent, RIGHT_SIDE);
+          else
+            rotate(parent, LEFT_SIDE);
+          fixDoubleBlack(ptr);
+        }
+      }
+      else
+      {
+        if (sibling->hasRedChild())
+        {
+          if (sibling->left != NULL && sibling->left->color == RED_NODE)
+          {
+            if (sibling->isOnLeft())
+            {
+              sibling->left->color == sibling->color;
+              sibling->color = parent->color;
+              rotate(parent, RIGHT_SIDE);
+            }
+            else
+            {
+              sibling->left->color = parent->color;
+              rotate(sibling, RIGHT_SIDE);
+              rotate(parent, LEFT_SIDE);
+            }
+          }
+          
+        }
+      }
+    }
+
+    void deleteNode(node_ptr toDelete)
+    {
+      node_ptr  toReplace = findReplacement(node);
+      node_ptr  parent = toDelete->parent;
+      bool bothBlack = ((toReplace == NULL || toReplace->color == BLACK_NODE) && (toDelete->color == BLACK_NODE))
+
+      if (toReplace == NULL) //toDelete is leaf
+      {
+        if (toDelete == root_)
+          freeNode(toDelete);
+        else
+        {
+          if (bothBlack)
+            fixDoubleBlack(toReplace);
+        }
+      }
+    }
+
+  public:
+
+  void insert(T data) {
+    node_ptr found = searchNode(data)
+
+    if (found && found->data == data)
+    {
+      found->count++;
+      return;
+    }
+    if (!found)
+    {
+      node_ptr ptr = alloc_.allocate(1);
+      alloc_.construct(ptr, data);
+      if (root_ == NULL)
+      {
+        root_ = ptr;
+        root_->color = BLACK_NODE;
+        return;
+      }
+      newNode->parent = found;
+      if (data < found->val)
+        found->left = newNode;
+      else
+        found->right = newNode;
+      fixViolation(root_, ptr);
+    }
+  }
+
+  void printTree(){printTree(root_);}
+
+  node_ptr searchNode(T value){return (searchNode(root_, value));}
+
+  void deleteNode(T value)
+  {
+    if (root_ == NULL)
+      return;
+    node_ptr found = searchNode(value);
+    if (found && found->data == value)
+    {
+      if (found->count > 1)
+        found->count--;
+      else
+        deleteNode(found);
+    }
+  };
+
+  bool  checkNodeColor(T value) const {return (checkNodeColor(root_, value));};
+
+  node_ptr  get_root(){return root_;}
 };
