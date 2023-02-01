@@ -5,14 +5,11 @@
 
 int main(void)
 {
-	RBT<int> tree;
+	ft::RBT<int> tree;
 	int del = 5;
 
 	tree.insert(5);
 	tree.insert(2);
-	tree.insert(6);
-	tree.insert(4);
-	tree.insert(1);
 	tree.insert(3);
 	tree.insert(11);
 
@@ -22,7 +19,7 @@ int main(void)
 	v.visualize();
 	cout << endl << endl;
 
-	tree.deleteRBNode(del);
+	tree.deleteNode(del);
 
 	const visualizer<int> vv(tree);
 	cout << endl << endl;
