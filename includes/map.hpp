@@ -28,21 +28,18 @@ namespace ft {
 				const &value_allocator_const_reference;
 			typedef typename Allocator::template rebind<value_type>::other
 				const *value_allocator_const_pointer;
-			typedef ft::rb_tree<Key, value_type, key_compare, value_allocator_type>
-				tree_type;
-			typedef typename tree_type::iterator iterator;
-			typedef typename tree_type::const_iterator const_iterator;
-			typedef typename tree_type::reverse_iterator reverse_iterator;
-			typedef typename tree_type::const_reverse_iterator const_reverse_iterator;
+			// typedef ft::RBT<Key, value_type, key_compare, value_allocator_type>
+			// 	tree_type;
+			// typedef typename tree_type::iterator iterator;
+			// typedef typename tree_type::const_iterator const_iterator;
+			// typedef typename tree_type::reverse_iterator reverse_iterator;
+			// typedef typename tree_type::const_reverse_iterator const_reverse_iterator;
 
-		map() {
-			(void)comp;
-			(void)alloc;
-		}
+		map() {}
 
 		explicit map( const Compare& comp,
               const Allocator& alloc = Allocator() ) {
-		
+
 		}
 
 		map( const map& other ) {
