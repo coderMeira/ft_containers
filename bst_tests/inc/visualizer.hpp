@@ -1,7 +1,7 @@
 #pragma once
-#include "rbt.hpp"
 #include <string>
 #include <queue>
+#include "../inc/rbt.hpp"
 
 using namespace std;
 

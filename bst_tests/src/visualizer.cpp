@@ -126,7 +126,7 @@ void visualizer<T>::visualize() const
 		for (auto node = 0; node < nodes_count; node++)
 		{
 			const auto node_value = values_[level][node].empty() ? empty_node_ : values_[level][node];
-			cout << setw(node_length_) << setfill('0') << (!values_[level][node].empty() && tree_.checkNodeColor(stoi(node_value.c_str())) == ft::BLACK_NODE ? node_value : RED_CLR + node_value + RESET_CLR);
+			cout << setw(node_length_) << setfill('0') << (!values_[level][node].empty() && tree_.checkNodeColor(stoi(node_value.c_str())) == ft::BLACK ? node_value : RED_CLR + node_value + RESET_CLR);
 			cout << string(nodes_spacing * (node != last_node), ' ');
 		}
 
