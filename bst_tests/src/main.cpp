@@ -9,20 +9,29 @@ int main(void)
 	int del = 5;
 
 	tree.insert(5);
+	visualizer<int> a(tree);
+	cout << endl << endl;
+	a.visualize();
+
 	tree.insert(2);
+	visualizer<int> b(tree);
+	cout << endl << endl;
+	b.visualize();
+
 	tree.insert(4);
+	visualizer<int> c(tree);
+	cout << endl << endl;
+	c.visualize();
+
 	tree.insert(11);
 
+	visualizer<int> d(tree);
+	cout << endl << endl;
+	d.visualize();
 
-	const visualizer<int> v(tree);
-	cout << endl << endl;
-	v.visualize();
-	cout << endl << endl;
+	// tree.deleteNode(del);
 
-	tree.deleteNode(del);
-
-	const visualizer<int> vv(tree);
-	cout << endl << endl;
-	vv.visualize();
-	cout << endl << endl;
+	// cout << endl << endl;
+	// v.visualize();
+	// cout << endl << endl;
 }
