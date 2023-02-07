@@ -29,9 +29,9 @@ int main(void)
 	cout << endl << endl;
 	d.visualize();
 
-	// tree.deleteNode(del);
+	tree.deleteNode(del);
 
-	// cout << endl << endl;
-	// v.visualize();
-	// cout << endl << endl;
+	visualizer<int> v(tree);
+	cout << endl << endl;
+	v.visualize();
 }

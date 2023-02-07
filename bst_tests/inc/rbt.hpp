@@ -42,11 +42,23 @@ namespace ft
 			return (this == parent->left);
 		}
 
+		Node *sibling() const
+		{
+			if (parent == NULL)
+				return NULL;
+
+			if (isLeftChild())
+				return (parent->right);
+			else
+				return (parent->left);
+		}
+
 		Node *uncle() const
 		{
 			if (parent == NULL || parent->parent == NULL)
-		return NULL;
-			return (parent->uncle());
+				return (NULL);
+
+			return (this->parent->sibling());
 		}
 
 		bool hasRedChild() const
@@ -68,18 +80,27 @@ namespace ft
 		}
 	};
 
-	template <class T, class Allocator = std::allocator<T> >
+	template <
+				class Key,
+				class T,
+				class Compare = std::less<Key>,
+				class Allocator = std::allocator<ft::pair<const Key,T>>
+			 >
 	class RBT
 	{
 		public:
-			typedef T		 												value_type;
+			typedef Key														key_type;
+			typedef T														mapped_type;
+			typedef ft::pair<const Key, T>									value_type;
 			typedef typename Allocator::template rebind<Node<T> >::other	allocator_type;
+			typedef typename std::size_t									size_type;
+			typedef Node<T>													node_type;
 			typedef Node<T>*												node_ptr;
+			typedef Node<T>* const											const_node_ptr;
 			typedef typename allocator_type::pointer						pointer;
 			typedef typename allocator_type::const_pointer					const_pointer;
 			typedef typename allocator_type::reference						reference;
 			typedef typename allocator_type::const_reference				const_reference;
-			typedef typename std::size_t									size_type;
 			typedef typename std::ptrdiff_t	 								difference_type;
 			typedef typename ft::random_access_iterator<pointer>			iterator;
 			typedef typename ft::random_access_iterator<const_pointer>		const_iterator;
@@ -91,65 +112,6 @@ namespace ft
 		private:
 			Node<T>*		root_;
 			allocator_type	alloc_;
-
-// void fixSide(node_ptr root, node_ptr ptr, node_ptr parent, node_ptr grand_parent, Side side)
-			// {
-			//	 node_ptr uncle = NULL;
-
-			//	 if (side == LEFT)
-			//	 uncle = grand_parent->right;
-			//	 else
-			//	 uncle = grand_parent->left;
-
-			//	 if (uncle != NULL && uncle->color == RED)
-			//	 {
-			//	 parent->color = BLACK;
-			//	 uncle->color = BLACK;
-			//	 grand_parent->color = RED;
-			//	 ptr = grand_parent;
-			//	 }
-			//	 else
-			//	 {
-			//	 if (side == LEFT)
-			//	 {
-			//		 if (!ptr->isLeftChild())
-			//		 {
-			//	 rotate(parent, LEFT);
-			//	 ptr = parent;
-			//	 parent = ptr->parent;
-			//		 }
-			//		 rotate(grand_parent, RIGHT);
-			//	 }
-			//	 else
-			//	 {
-			//		 if (ptr->isLeftChild())
-			//		 {
-			//	 rotate(parent, RIGHT);
-			//	 ptr = parent;
-			//	 parent = ptr->parent;
-			//		 }
-			//		 rotate(grand_parent, LEFT);
-			//	 }
-			//	 std::swap(parent->color, grand_parent->color);
-			//	 ptr = parent;
-			//	 }
-			// }
-
-			// void fixViolation(node_ptr ptr)
-			// {
-			//	 node_ptr parent = NULL;
-
-			//	 while ((ptr != root_) && (ptr->color != BLACK) && (ptr->parent->color == RED))
-			//	 {
-			//	 parent = ptr->parent;
-
-			//	 if (parent->isLeftChild())
-			//		 fixSide(ptr, parent, LEFT);
-			//	 else
-			//		 fixSide(ptr, parent, RIGHT);
-			//	 }
-			//	 root_->color = BLACK;
-			// }
 
 		void rotate(node_ptr ptr, Side direction)
 		{
@@ -225,30 +187,26 @@ namespace ft
 			}
 		}
 
-		node_ptr	searchNode(T value)
+		node_ptr	searchNode(node_ptr ptr, T value)
 		{
-			node_ptr tmp = root_;
-
-			while (tmp != NULL)
+			if (ptr == NULL)
+				return (NULL);
+			if (value < ptr->data)
 			{
-				if (value < tmp->data)
-				{
-					if (tmp->left == NULL)
-						break;
-					else
-						tmp = tmp->left;
-				}
-				else if (value > tmp->data)
-				{
-					if (tmp->right == NULL)
-						break;
-					else
-						tmp = tmp->right;
-				}
+				if (ptr->left == NULL)
+					return (ptr);
 				else
-					break;
+					return (searchNode(ptr->left, value));
 			}
-			return (tmp);
+			else if (value > ptr->data)
+			{
+				if (ptr->right == NULL)
+					return (ptr);
+				else
+					return (searchNode(ptr->right, value));
+			}
+			else
+				return (ptr);
 		}
 
 		bool	checkNodeColor(node_ptr root, T value) const
@@ -304,18 +262,18 @@ namespace ft
 			if (ptr == root_)
 				return;
 
-			node_ptr	uncle = ptr->uncle();
+			node_ptr	sibling = ptr->sibling();
 			node_ptr	parent = ptr->parent;
 
-			if (uncle == NULL)
+			if (sibling == NULL)
 				fixDoubleBlack(parent);
 			else
 			{
-				if (uncle->color == RED)
+				if (sibling->color == RED)
 				{
 					parent->color = RED;
-					uncle->color = BLACK;
-					if (uncle->isLeftChild())
+					sibling->color = BLACK;
+					if (sibling->isLeftChild())
 						rotate(parent, RIGHT);
 					else
 						rotate(parent, LEFT);
@@ -323,35 +281,35 @@ namespace ft
 				}
 				else
 				{
-					if (uncle->hasRedChild())
+					if (sibling->hasRedChild())
 					{
-						if (uncle->left != NULL && uncle->left->color == RED)
+						if (sibling->left != NULL && sibling->left->color == RED)
 						{
-							if (uncle->isLeftChild())
+							if (sibling->isLeftChild())
 							{
-							uncle->left->color == uncle->color;
-							uncle->color = parent->color;
+							sibling->left->color == sibling->color;
+							sibling->color = parent->color;
 							rotate(parent, RIGHT);
 							}
 							else
 							{
-								uncle->left->color = parent->color;
-								rotate(uncle, RIGHT);
+								sibling->left->color = parent->color;
+								rotate(sibling, RIGHT);
 								rotate(parent, LEFT);
 							}
 						}
 						else
 						{
-							if (uncle->isLeftChild())
+							if (sibling->isLeftChild())
 							{
-								uncle->right->color = parent->color;
-								rotate(uncle, LEFT);
+								sibling->right->color = parent->color;
+								rotate(sibling, LEFT);
 								rotate(parent, RIGHT);
 							}
 							else
 							{
-								uncle->right->color = uncle->color;
-								uncle->color = parent->color;
+								sibling->right->color = sibling->color;
+								sibling->color = parent->color;
 								rotate(parent, LEFT);
 							}
 						}
@@ -359,7 +317,7 @@ namespace ft
 					}
 					else
 					{
-						uncle->color = RED;
+						sibling->color = RED;
 						if (parent->color == BLACK)
 							fixDoubleBlack(parent);
 						else
@@ -430,7 +388,7 @@ namespace ft
 
 		void insert(T data)
 		{
-			node_ptr leafNode = searchNode(data);
+			node_ptr leafNode = searchNode(root_ ,data);
 
 			if (leafNode && leafNode->data == data)
 				return;
@@ -452,7 +410,6 @@ namespace ft
 				leafNode->right = newNode;
 
 			fixRedRed(newNode);
-			// fixViolation(root_, newNode);
 		}
 
 		void deleteNode(T value)
@@ -460,7 +417,7 @@ namespace ft
 			if (root_ == NULL)
 				return;
 
-			node_ptr found = searchNode(value);
+			node_ptr found = searchNode(root_, value);
 			if (found->data == value)
 				deleteNode(found);
 		};
