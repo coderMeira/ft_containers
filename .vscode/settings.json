@@ -49,6 +49,7 @@
 		"typeinfo": "cpp",
 		"iomanip": "cpp",
 		"*.cp": "c",
-		"ctime": "cpp"
+		"ctime": "cpp",
+		"map": "cpp"
 	}
 }

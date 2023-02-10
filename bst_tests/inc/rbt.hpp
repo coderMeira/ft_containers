@@ -9,14 +9,17 @@ namespace ft
 	typedef enum {RED, BLACK} Color;
 	typedef enum {LEFT, RIGHT} Side;
 
-	template <class T>
+	template <class Key, class T>
 	struct Node
 	{
-		T		data;
-		Color	color;
-		Node	*parent, *left, *right;
+		ft::pair<Key, T>	data;
+		Color				color;
+		Node				*parent, *left, *right;
 
-		Node(T data) : data(data), color(RED), parent(NULL), left(NULL), right(NULL)
+		Node() : parent(NULL), left(NULL), right(NULL)
+		{}
+
+		Node(Key key, T data) : data(ft::make_pair(key, data)), color(RED), parent(NULL), left(NULL), right(NULL)
 		{}
 
 		Node (const Node& other) : data(other.data), color(other.color), parent(other.parent), left(other.left), right(other.right)
@@ -78,6 +81,36 @@ namespace ft
 			newParent->parent = parent;
 			parent = newParent;
 		}
+
+		Node *successor()
+		{
+			if (this->right == NULL)
+				return (NULL);
+
+			else if (this->right->left == NULL)
+				return (this->right);
+
+			else if (this->right->left != NULL)
+				return (this->right->left);
+
+			else
+				return (NULL);
+		}
+
+		Node *predecessor()
+		{
+			if (this->left == NULL)
+				return (NULL);
+
+			if (this->left->right == NULL)
+				return (this->left);
+
+			else if (this->left->right != NULL)
+				return (this->left->right);
+
+			else
+				return (NULL);
+		}
 	};
 
 	template <
@@ -91,7 +124,9 @@ namespace ft
 		public:
 			typedef Key														key_type;
 			typedef T														mapped_type;
-			typedef ft::pair<const Key, T>									value_type;
+			typedef ft::pair<const key_type,mapped_type>					value_type;
+			typedef Compare													key_compare;
+			typedef bool													value_compare;
 			typedef typename Allocator::template rebind<Node<T> >::other	allocator_type;
 			typedef typename std::size_t									size_type;
 			typedef Node<T>													node_type;
@@ -102,16 +137,15 @@ namespace ft
 			typedef typename allocator_type::reference						reference;
 			typedef typename allocator_type::const_reference				const_reference;
 			typedef typename std::ptrdiff_t	 								difference_type;
-			typedef typename ft::random_access_iterator<pointer>			iterator;
-			typedef typename ft::random_access_iterator<const_pointer>		const_iterator;
-			typedef typename ft::reverse_iterator<pointer>					reverse_iterator;
-			typedef typename ft::reverse_iterator<const_pointer>			const_reverse_iterator;
+
 
 		RBT(){root_ = NULL;}
 
 		private:
-			Node<T>*		root_;
+			node_ptr		root_;
 			allocator_type	alloc_;
+			size_type		size_;
+			Compare			comp_;
 
 		void rotate(node_ptr ptr, Side direction)
 		{
@@ -386,6 +420,22 @@ namespace ft
 
 		public:
 
+		bool empty() const
+		{
+			return (root_ == NULL);
+		}
+
+		size_type size() const
+		{
+			return (size_);
+		}
+
+		size_type max_size() const
+		{
+			return (alloc_.max_size());
+		}
+
+//handle iterators
 		void insert(T data)
 		{
 			node_ptr leafNode = searchNode(root_ ,data);
@@ -400,6 +450,7 @@ namespace ft
 			{
 				root_ = newNode;
 				root_->color = BLACK;
+				size_++;
 				return;
 			}
 
@@ -410,6 +461,7 @@ namespace ft
 				leafNode->right = newNode;
 
 			fixRedRed(newNode);
+			size_++;
 		}
 
 		void deleteNode(T value)
@@ -419,7 +471,10 @@ namespace ft
 
 			node_ptr found = searchNode(root_, value);
 			if (found->data == value)
+			{
 				deleteNode(found);
+				size_--;
+			}
 		};
 
 		bool	checkNodeColor(T value) const {return (checkNodeColor(root_, value));};
@@ -450,6 +505,134 @@ namespace ft
 
 		// destructor
 		~RBT(){};
+
+		class iterator
+		{
+			private:
+				node_ptr	ptr_;
+
+			public:
+				iterator(node_ptr ptr = NULL) : ptr_(ptr) {};
+				iterator(const iterator &other) : ptr_(other.ptr_) {};
+				~iterator(){};
+
+				iterator &operator=(const iterator &other)
+				{
+					if (this == &other)
+						return (*this);
+					this->ptr_ = other.ptr_;
+					return (*this);
+				}
+
+				bool operator==(const iterator &other) const
+				{
+					if (this == &other)
+						return (true);
+					return (this->ptr_ == other.ptr_);
+				}
+
+				bool operator!=(const iterator &other) const
+				{
+					return (!(*this == other));
+				}
+
+				iterator &operator++()
+				{
+					ptr_ = ptr_->successor();
+					return (*this);
+				}
+
+				iterator operator++(int)
+				{
+					iterator tmp(*this);
+					ptr_ = ptr_->successor();
+					return (tmp);
+				}
+
+				iterator &operator--()
+				{
+					ptr_ = ptr_->predecessor();
+					return (*this);
+				}
+
+				iterator operator--(int)
+				{
+					iterator tmp(*this);
+					ptr_ = ptr_->predecessor();
+					return (tmp);
+				}
+
+				T &operator*() const
+				{
+					return (ptr_->data);
+				}
+
+				T *operator->() const
+				{
+					return (&ptr_->data);
+				}
+		};
+
+		iterator begin()
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->left != NULL)
+				tmp = tmp->left;
+			return (iterator(tmp));
+		}
+
+		iterator end()
+		{
+			return (iterator(NULL));
+		}
+
+		iterator rbegin()
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->right != NULL)
+				tmp = tmp->right;
+			return (iterator(tmp));
+		}
+
+		iterator rend()
+		{
+			return (iterator(NULL));
+		}
+
+		const iterator cbegin() const
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->left != NULL)
+				tmp = tmp->left;
+			return (iterator(tmp));
+		}
+
+		const iterator cend() const
+		{
+			return (iterator(NULL));
+		}
+
+		const iterator crbegin() const
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->right != NULL)
+				tmp = tmp->right;
+			return (iterator(tmp));
+		}
+
+		const iterator crend() const
+		{
+			return (iterator(NULL));
+		}
+
 	};
 }
 #endif
