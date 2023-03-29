@@ -7,8 +7,8 @@
 #define RED_CLR "\033[31m"
 #define RESET_CLR "\033[m"
 
-template <class T>
-visualizer<T>::visualizer(ft::RBT<T> tree, int node_length /* = -1 */, int space_length /* = -1 */)
+template <class Key, class T>
+visualizer<Key, T>::visualizer(ft::RBT<Key, T> tree, int node_length /* = -1 */, int space_length /* = -1 */)
 {
 
 	auto min_node_len = 0;
@@ -19,7 +19,7 @@ visualizer<T>::visualizer(ft::RBT<T> tree, int node_length /* = -1 */, int space
 	tree_root_            = tree_.get_root();
 	tree_height_          = get_tree_height(tree_root_);
 	tree_nodes_           = get_nodes_count(tree_height_) - 1;
-	queue<ft::Node<T>*> nodes = breadth_first_search();
+	queue<ft::Node<Key, T>*> nodes = breadth_first_search();
 
 	// Initialize values_ array
 	values_ = new string*[tree_nodes_];
@@ -55,15 +55,15 @@ visualizer<T>::visualizer(ft::RBT<T> tree, int node_length /* = -1 */, int space
 	assert(node_type_ == space_length_ % 2);
 }
 
-template <class T>
-queue<ft::Node<T>*> visualizer<T>::breadth_first_search()
+template <class Key, class T>
+queue<ft::Node<Key, T>*> visualizer<Key, T>::breadth_first_search()
 {
-	queue<ft::Node<T>*> temp, nodes;
+	queue<ft::Node<Key, T>*> temp, nodes;
 	temp.push(tree_root_);
 
 	for (auto i = 0; i < tree_nodes_; i++)
 	{
-		ft::Node<T>* current = temp.front();
+		ft::Node<Key, T>* current = temp.front();
 		temp.pop();
 		nodes.push(current);
 
@@ -82,8 +82,8 @@ queue<ft::Node<T>*> visualizer<T>::breadth_first_search()
 	return nodes;
 }
 
-template <class T>
-int visualizer<T>::get_tree_height(ft::Node<T>* root) const
+template <class Key, class T>
+int visualizer<Key, T>::get_tree_height(ft::Node<Key, T>* root) const
 {
 	if (root == nullptr) return 0;
 	const int left_height  = get_tree_height(root->left);
@@ -91,14 +91,14 @@ int visualizer<T>::get_tree_height(ft::Node<T>* root) const
 	return left_height > right_height ? left_height + 1 : right_height + 1;
 }
 
-template <class T>
-int visualizer<T>::get_nodes_count(const int level) const
+template <class Key, class T>
+int visualizer<Key, T>::get_nodes_count(const int level) const
 {
 	return int(pow(2, level));
 }
 
-template <class T>
-int visualizer<T>::get_subtree_width(const int level) const
+template <class Key, class T>
+int visualizer<Key, T>::get_subtree_width(const int level) const
 {
 	const auto levels_below = tree_height_ - level - 1;
 	const auto nodes_count  = get_nodes_count(levels_below);
@@ -106,8 +106,8 @@ int visualizer<T>::get_subtree_width(const int level) const
 	return node_length_ * nodes_count + space_length_ * spaces_count;
 }
 
-template <class T>
-void visualizer<T>::visualize() const
+template <class Key, class T>
+void visualizer<Key, T>::visualize() const
 {
 
 	const auto last_level = tree_height_ - 1;

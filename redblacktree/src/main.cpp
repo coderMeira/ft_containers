@@ -1,37 +1,38 @@
 #include <iostream>
-#include"../inc/bst.hpp"
-#include"../inc/rbt.hpp"
+
+#include "../inc/rbt.hpp"
 #include "../inc/visualizer.hpp"
 
+using namespace std;
 int main(void)
 {
-	ft::RBT<int> tree;
+	ft::RBT<string, int> tree;
 	int del = 5;
 
 	tree.insert(5);
-	visualizer<int> a(tree);
+	visualizer<string, int> a(tree);
 	cout << endl << endl;
 	a.visualize();
 
 	tree.insert(2);
-	visualizer<int> b(tree);
+	visualizer<string, int> b(tree);
 	cout << endl << endl;
 	b.visualize();
 
 	tree.insert(4);
-	visualizer<int> c(tree);
+	visualizer<string, int> c(tree);
 	cout << endl << endl;
 	c.visualize();
 
 	tree.insert(11);
 
-	visualizer<int> d(tree);
+	visualizer<string, int> d(tree);
 	cout << endl << endl;
 	d.visualize();
 
 	tree.deleteNode(del);
 
-	visualizer<int> v(tree);
+	visualizer<string, int> v(tree);
 	cout << endl << endl;
 	v.visualize();
 }

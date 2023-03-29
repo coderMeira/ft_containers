@@ -50,6 +50,7 @@
 		"iomanip": "cpp",
 		"*.cp": "c",
 		"ctime": "cpp",
-		"map": "cpp"
+		"map": "cpp",
+		"numbers": "cpp"
 	}
 }

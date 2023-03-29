@@ -117,21 +117,21 @@ namespace ft
 				class Key,
 				class T,
 				class Compare = std::less<Key>,
-				class Allocator = std::allocator<ft::pair<const Key,T>>
+				class Allocator = std::allocator< ft::pair<const Key,T> >
 			 >
 	class RBT
 	{
 		public:
 			typedef Key														key_type;
 			typedef T														mapped_type;
-			typedef ft::pair<const key_type,mapped_type>					value_type;
+			typedef ft::pair<const key_type, mapped_type>					value_type;
 			typedef Compare													key_compare;
 			typedef bool													value_compare;
-			typedef typename Allocator::template rebind<Node<T> >::other	allocator_type;
+			typedef typename Allocator::template rebind<value_type>::other	allocator_type;
 			typedef typename std::size_t									size_type;
-			typedef Node<T>													node_type;
-			typedef Node<T>*												node_ptr;
-			typedef Node<T>* const											const_node_ptr;
+			typedef Node<key_type, mapped_type>								node_type;
+			typedef Node<key_type, mapped_type>*							node_ptr;
+			typedef Node<key_type, mapped_type>* const						const_node_ptr;
 			typedef typename allocator_type::pointer						pointer;
 			typedef typename allocator_type::const_pointer					const_pointer;
 			typedef typename allocator_type::reference						reference;
@@ -139,7 +139,57 @@ namespace ft
 			typedef typename std::ptrdiff_t	 								difference_type;
 
 
-		RBT(){root_ = NULL;}
+			RBT(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()) : root_(NULL), alloc_(alloc), size_(0), comp_(comp)
+			{}
+
+			RBT(){root_ = NULL;}
+
+			RBT(const RBT& other) : root_(NULL), alloc_(other.alloc_), size_(0), comp_(other.comp_)
+			{
+				*this = other;
+			}
+
+			RBT& operator=(const RBT& other)
+			{
+				if (this != &other)
+				{
+					clear();
+					root_ = copy(other.root_);
+					size_ = other.size_;
+				}
+				return (*this);
+			}
+
+			bool operator< (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (comp_(this->root_->data.first, other.root_->data.first));
+			}
+
+			bool operator> (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (comp_(other.root_->data.first, this->root_->data.first));
+			}
+
+			bool operator<= (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (!(*this > other));
+			}
+
+			bool operator>= (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (!(*this < other));
+			}
+
+			bool operator== (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (!(*this < other) && !(*this > other));
+			}
+
+			bool operator!= (const RBT<const key_type, mapped_type> &other) const
+			{
+				return (!(*this == other));
+			}
+
 
 		private:
 			node_ptr		root_;
@@ -149,7 +199,7 @@ namespace ft
 
 		void rotate(node_ptr ptr, Side direction)
 		{
-			node_ptr	child = (direction == RIGHT) ? ptr->left : ptr->right;
+			node_ptr	child = ((direction == RIGHT) ? ptr->left : ptr->right);
 
 			if (ptr == root_)
 				root_ = child;
@@ -262,7 +312,7 @@ namespace ft
 
 		node_ptr	findSuccessor(node_ptr ptr)
 		{
-			Node<T> * curr = ptr;
+			Node<const key_type, mapped_type> * curr = ptr;
 
 			while (curr && curr->left)
 				curr = curr->left;
@@ -436,32 +486,178 @@ namespace ft
 		}
 
 //handle iterators
-		void insert(T data)
-		{
-			node_ptr leafNode = searchNode(root_ ,data);
 
-			if (leafNode && leafNode->data == data)
-				return;
+	ft::pair<iterator, bool> insert(const value_type& val)
+		{
+			node_ptr leafNode = searchNode(root_ ,val.first);
+
+			if (leafNode && leafNode->key == val.first)
+				return (ft::make_pair(iterator(leafNode), false));
 
 			node_ptr newNode = alloc_.allocate(1);
-			alloc_.construct(newNode, data);
+			alloc_.construct(newNode, val.first, val.second);
 
 			if (root_ == NULL)
 			{
 				root_ = newNode;
 				root_->color = BLACK;
 				size_++;
-				return;
+				return (ft::make_pair(iterator(newNode), true));
 			}
 
 			newNode->parent = leafNode;
-			if (data < leafNode->data)
+			if (val.first < leafNode->key)
 				leafNode->left = newNode;
 			else
 				leafNode->right = newNode;
 
 			fixRedRed(newNode);
 			size_++;
+			return (ft::make_pair(iterator(newNode), true));
+		}
+
+		iterator insert(iterator position, const value_type& val)
+		{
+			(void)position;
+			return (insert(val).first);
+		}
+
+		template <class InputIterator>
+		void insert(InputIterator first, InputIterator last)
+		{
+			while (first != last)
+			{
+				insert(*first);
+				first++;
+			}
+		}
+
+		void erase(iterator position)
+		{
+			deleteNode(position.node_);
+			size_--;
+		}
+
+		size_type erase(const key_type& k)
+		{
+			if (root_ == NULL)
+				return (0);
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+			{
+				deleteNode(found);
+				size_--;
+				return (1);
+			}
+			return (0);
+		}
+
+		void erase(iterator first, iterator last)
+		{
+			while (first != last)
+			{
+				iterator tmp = first;
+				first++;
+				erase(tmp);
+			}
+		}
+
+		void swap(RBT& x)
+		{
+			node_ptr tmp = root_;
+			root_ = x.root_;
+			x.root_ = tmp;
+		}
+
+		void clear()
+		{
+			erase(begin(), end());
+		}
+
+		key_compare key_comp() const
+		{
+			return (comp_);
+		}
+
+		value_compare value_comp() const
+		{
+			return (comp_);
+		}
+
+		iterator find(const key_type& k)
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (iterator(found));
+			return (end());
+		}
+
+		const_iterator find(const key_type& k) const
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (const_iterator(found));
+			return (end());
+		}
+
+		size_type count(const key_type& k) const
+		{
+			if (root_ == NULL)
+				return (0);
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (1);
+			return (0);
+		}
+
+		iterator lower_bound(const key_type& k)
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (iterator(found));
+			if (found->key < k)
+				return (iterator(found->right));
+			return (iterator(found));
+		}
+
+		const_iterator lower_bound(const key_type& k) const
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (const_iterator(found));
+			if (found->key < k)
+				return (const_iterator(found->right));
+			return (const_iterator(found));
+		}
+
+		iterator upper_bound(const key_type& k)
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (iterator(found->right));
+			if (found->key < k)
+				return (iterator(found->right));
+			return (iterator(found));
+		}
+
+		const_iterator upper_bound(const key_type& k) const
+		{
+			node_ptr found = searchNode(root_, k);
+			if (found->key == k)
+				return (const_iterator(found->right));
+			if (found->key < k)
+				return (const_iterator(found->right));
+			return (const_iterator(found));
+		}
+
+		ft::pair<const_iterator,const_iterator> equal_range(const key_type& k) const
+		{
+			return (ft::make_pair(lower_bound(k), upper_bound(k)));
+		}
+
+		ft::pair<iterator,iterator> equal_range(const key_type& k)
+		{
+			return (ft::make_pair(lower_bound(k), upper_bound(k)));
 		}
 
 		void deleteNode(T value)
@@ -483,19 +679,19 @@ namespace ft
 		node_ptr	get_root(){return root_;}
 
 		// operator overloading
-		bool operator==(const RBT<T> &other) const
+		bool operator==(const RBT<const key_type, mapped_type> &other) const
 		{
 			if (this == &other)
 				return (true);
 			return (this->root_ == other.root_);
 		}
 
-		bool operator!=(const RBT<T> &other) const
+		bool operator!=(const RBT<const key_type, mapped_type> &other) const
 		{
 			return (!(*this == other));
 		}
 
-		RBT<T> &operator=(const RBT<T> &other)
+		RBT<const key_type, mapped_type> &operator=(const RBT<const key_type, mapped_type> &other)
 		{
 			if (this == &other)
 				return (*this);

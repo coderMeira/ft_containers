@@ -19,7 +19,7 @@
 #include "vector.hpp"
 #include "pair.hpp"
 #include "map.hpp"
-#include "../bst_tests/inc/rbt.hpp"
+#include "../redblacktree/inc/rbt.hpp"
 
 
 template <typename T>
