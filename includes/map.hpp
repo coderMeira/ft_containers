@@ -4,7 +4,7 @@
 
 #include "ft_containers.hpp"
 #include <map>
-#include "../redblacktree/inc/rbt.hpp"
+#include "./tree/red_black_tree.hpp"
 
 namespace ft {
 	template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<ft::pair<const Key,T> > >

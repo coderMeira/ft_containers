@@ -149,47 +149,10 @@ namespace ft
 				*this = other;
 			}
 
-			RBT& operator=(const RBT& other)
+			~RBT()
 			{
-				if (this != &other)
-				{
-					clear();
-					root_ = copy(other.root_);
-					size_ = other.size_;
-				}
-				return (*this);
+				clear();
 			}
-
-			bool operator< (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (comp_(this->root_->data.first, other.root_->data.first));
-			}
-
-			bool operator> (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (comp_(other.root_->data.first, this->root_->data.first));
-			}
-
-			bool operator<= (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (!(*this > other));
-			}
-
-			bool operator>= (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (!(*this < other));
-			}
-
-			bool operator== (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (!(*this < other) && !(*this > other));
-			}
-
-			bool operator!= (const RBT<const key_type, mapped_type> &other) const
-			{
-				return (!(*this == other));
-			}
-
 
 		private:
 			node_ptr		root_;
@@ -470,24 +433,149 @@ namespace ft
 
 		public:
 
-		bool empty() const
+			bool empty() const
+			{
+				return (root_ == NULL);
+			}
+
+			size_type size() const
+			{
+				return (size_);
+			}
+
+			size_type max_size() const
+			{
+				return (alloc_.max_size());
+			}
+
+	//Iterators
+	class iterator
+	{
+		private:
+			RBT::node_ptr	ptr_;
+
+		public:
+			iterator(node_ptr ptr = NULL) : ptr_(ptr) {};
+			iterator(const iterator &other) : ptr_(other.ptr_) {};
+			~iterator(){};
+
+			iterator &operator=(const iterator &other)
+			{
+				if (this == &other)
+					return (*this);
+				this->ptr_ = other.ptr_;
+				return (*this);
+			}
+
+			bool operator==(const iterator &other) const
+			{
+				if (this == &other)
+					return (true);
+				return (this->ptr_ == other.ptr_);
+			}
+
+			bool operator!=(const iterator &other) const
+			{
+				return (!(*this == other));
+			}
+
+			iterator &operator++()
+			{
+				ptr_ = ptr_->successor();
+				return (*this);
+			}
+
+			iterator operator++(int)
+			{
+				iterator tmp(*this);
+				ptr_ = ptr_->successor();
+				return (tmp);
+			}
+
+			iterator &operator--()
+			{
+				ptr_ = ptr_->predecessor();
+				return (*this);
+			}
+
+			iterator operator--(int)
+			{
+				iterator tmp(*this);
+				ptr_ = ptr_->predecessor();
+				return (tmp);
+			}
+
+			T &operator*() const
+			{
+				return (ptr_->data);
+			}
+
+			T *operator->() const
+			{
+				return (&ptr_->data);
+			}
+		};
+		iterator begin()
 		{
-			return (root_ == NULL);
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->left != NULL)
+				tmp = tmp->left;
+			return (iterator(tmp));
 		}
 
-		size_type size() const
+		iterator end()
 		{
-			return (size_);
+			return (iterator(NULL));
 		}
 
-		size_type max_size() const
+		iterator rbegin()
 		{
-			return (alloc_.max_size());
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->right != NULL)
+				tmp = tmp->right;
+			return (iterator(tmp));
 		}
 
-//handle iterators
+		iterator rend()
+		{
+			return (iterator(NULL));
+		}
 
-	ft::pair<iterator, bool> insert(const value_type& val)
+		const iterator cbegin() const
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->left != NULL)
+				tmp = tmp->left;
+			return (iterator(tmp));
+		}
+
+		const iterator cend() const
+		{
+			return (iterator(NULL));
+		}
+
+		const iterator crbegin() const
+		{
+			node_ptr tmp = root_;
+			if (tmp == NULL)
+				return (iterator(tmp));
+			while (tmp->right != NULL)
+				tmp = tmp->right;
+			return (iterator(tmp));
+		}
+
+		const iterator crend() const
+		{
+			return (iterator(NULL));
+		}
+
+		ft::pair<iterator, bool> insert(const value_type& val)
 		{
 			node_ptr leafNode = searchNode(root_ ,val.first);
 
@@ -592,12 +680,12 @@ namespace ft
 			return (end());
 		}
 
-		const_iterator find(const key_type& k) const
+		const iterator find(const key_type& k) const
 		{
 			node_ptr found = searchNode(root_, k);
 			if (found->key == k)
-				return (const_iterator(found));
-			return (end());
+				return (const iterator(found));
+			return (const end());
 		}
 
 		size_type count(const key_type& k) const
@@ -620,14 +708,14 @@ namespace ft
 			return (iterator(found));
 		}
 
-		const_iterator lower_bound(const key_type& k) const
+		const iterator lower_bound(const key_type& k) const
 		{
 			node_ptr found = searchNode(root_, k);
 			if (found->key == k)
-				return (const_iterator(found));
+				return (const iterator(found));
 			if (found->key < k)
-				return (const_iterator(found->right));
-			return (const_iterator(found));
+				return (const iterator(found->right));
+			return (const iterator(found));
 		}
 
 		iterator upper_bound(const key_type& k)
@@ -640,17 +728,17 @@ namespace ft
 			return (iterator(found));
 		}
 
-		const_iterator upper_bound(const key_type& k) const
+		const iterator upper_bound(const key_type& k) const
 		{
 			node_ptr found = searchNode(root_, k);
 			if (found->key == k)
-				return (const_iterator(found->right));
+				return (const iterator(found->right));
 			if (found->key < k)
-				return (const_iterator(found->right));
-			return (const_iterator(found));
+				return (const iterator(found->right));
+			return (const iterator(found));
 		}
 
-		ft::pair<const_iterator,const_iterator> equal_range(const key_type& k) const
+		ft::pair<const iterator, const iterator> equal_range(const key_type& k) const
 		{
 			return (ft::make_pair(lower_bound(k), upper_bound(k)));
 		}
@@ -679,14 +767,44 @@ namespace ft
 		node_ptr	get_root(){return root_;}
 
 		// operator overloading
-		bool operator==(const RBT<const key_type, mapped_type> &other) const
+
+		RBT& operator=(const RBT& other)
 		{
-			if (this == &other)
-				return (true);
-			return (this->root_ == other.root_);
+			if (this != &other)
+			{
+				clear();
+				root_ = copy(other.root_);
+				size_ = other.size_;
+			}
+			return (*this);
 		}
 
-		bool operator!=(const RBT<const key_type, mapped_type> &other) const
+		bool operator< (const RBT<const key_type, mapped_type> &other) const
+		{
+			return (comp_(this->root_->data.first, other.root_->data.first));
+		}
+
+		bool operator> (const RBT<const key_type, mapped_type> &other) const
+		{
+			return (comp_(other.root_->data.first, this->root_->data.first));
+		}
+
+		bool operator<= (const RBT<const key_type, mapped_type> &other) const
+		{
+			return (!(*this > other));
+		}
+
+		bool operator>= (const RBT<const key_type, mapped_type> &other) const
+		{
+			return (!(*this < other));
+		}
+
+		bool operator== (const RBT<const key_type, mapped_type> &other) const
+		{
+			return (!(*this < other) && !(*this > other));
+		}
+
+		bool operator!= (const RBT<const key_type, mapped_type> &other) const
 		{
 			return (!(*this == other));
 		}
@@ -698,137 +816,7 @@ namespace ft
 			this->root_ = other.root_;
 			return (*this);
 		}
-
-		// destructor
-		~RBT(){};
-
-		class iterator
-		{
-			private:
-				node_ptr	ptr_;
-
-			public:
-				iterator(node_ptr ptr = NULL) : ptr_(ptr) {};
-				iterator(const iterator &other) : ptr_(other.ptr_) {};
-				~iterator(){};
-
-				iterator &operator=(const iterator &other)
-				{
-					if (this == &other)
-						return (*this);
-					this->ptr_ = other.ptr_;
-					return (*this);
-				}
-
-				bool operator==(const iterator &other) const
-				{
-					if (this == &other)
-						return (true);
-					return (this->ptr_ == other.ptr_);
-				}
-
-				bool operator!=(const iterator &other) const
-				{
-					return (!(*this == other));
-				}
-
-				iterator &operator++()
-				{
-					ptr_ = ptr_->successor();
-					return (*this);
-				}
-
-				iterator operator++(int)
-				{
-					iterator tmp(*this);
-					ptr_ = ptr_->successor();
-					return (tmp);
-				}
-
-				iterator &operator--()
-				{
-					ptr_ = ptr_->predecessor();
-					return (*this);
-				}
-
-				iterator operator--(int)
-				{
-					iterator tmp(*this);
-					ptr_ = ptr_->predecessor();
-					return (tmp);
-				}
-
-				T &operator*() const
-				{
-					return (ptr_->data);
-				}
-
-				T *operator->() const
-				{
-					return (&ptr_->data);
-				}
-		};
-
-		iterator begin()
-		{
-			node_ptr tmp = root_;
-			if (tmp == NULL)
-				return (iterator(tmp));
-			while (tmp->left != NULL)
-				tmp = tmp->left;
-			return (iterator(tmp));
-		}
-
-		iterator end()
-		{
-			return (iterator(NULL));
-		}
-
-		iterator rbegin()
-		{
-			node_ptr tmp = root_;
-			if (tmp == NULL)
-				return (iterator(tmp));
-			while (tmp->right != NULL)
-				tmp = tmp->right;
-			return (iterator(tmp));
-		}
-
-		iterator rend()
-		{
-			return (iterator(NULL));
-		}
-
-		const iterator cbegin() const
-		{
-			node_ptr tmp = root_;
-			if (tmp == NULL)
-				return (iterator(tmp));
-			while (tmp->left != NULL)
-				tmp = tmp->left;
-			return (iterator(tmp));
-		}
-
-		const iterator cend() const
-		{
-			return (iterator(NULL));
-		}
-
-		const iterator crbegin() const
-		{
-			node_ptr tmp = root_;
-			if (tmp == NULL)
-				return (iterator(tmp));
-			while (tmp->right != NULL)
-				tmp = tmp->right;
-			return (iterator(tmp));
-		}
-
-		const iterator crend() const
-		{
-			return (iterator(NULL));
-		}
-
 	};
 }
+
 #endif

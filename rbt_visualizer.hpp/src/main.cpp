@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "../inc/rbt.hpp"
+#include "includes/tree/red_black_tree.hpp"
 #include "../inc/visualizer.hpp"
 
 using namespace std;
