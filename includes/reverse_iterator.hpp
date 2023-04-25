@@ -60,7 +60,7 @@ namespace ft{
 
 			reverse_iterator operator--(int){
 				reverse_iterator temp = *this;
-				--(*this);
+				++(*this);
 				return temp;
 			}
 

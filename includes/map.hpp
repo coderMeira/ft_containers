@@ -31,17 +31,18 @@ namespace ft {
 					}
 			};
 
-			typedef Allocator														allocator_type;
-			typedef value_type&														reference;
-			typedef const value_type&												const_reference;
-			typedef typename Allocator::pointer										pointer;
-			typedef typename Allocator::const_pointer								const_pointer;
-			typedef typename Allocator::template rebind<value_type>::other			value_allocator_type;
-			typedef typename Allocator::template rebind<value_type>::other*			value_allocator_pointer;
-			typedef typename Allocator::template rebind<value_type>::other&			value_allocator_reference;
-			typedef typename Allocator::template rebind<value_type>::other const &	value_allocator_const_reference;
-			typedef typename Allocator::template rebind<value_type>::other const *	value_allocator_const_pointer;
-			typedef RBT<Key, value_type, key_compare, value_allocator_type>			tree_type;
+			typedef typename Allocator::template rebind<value_type>::other			allocator_type;
+			typedef typename allocator_type::reference								reference;
+			typedef typename allocator_type::const_reference						const_reference;
+			typedef typename allocator_type::pointer								pointer;
+			typedef typename allocator_type::const_pointer							const_pointer;
+			// typedef allocator_type::template rebind<value_type>::other					value_allocator_type;
+			// typedef typename Allocator::template rebind<value_type>::other				value_allocator_type;
+			// typedef typename Allocator::template rebind<value_type>::other*				value_allocator_pointer;
+			// typedef typename Allocator::template rebind<value_type>::other&				value_allocator_reference;
+			// typedef typename Allocator::template rebind<value_type>::other const &		value_allocator_const_reference;
+			// typedef typename Allocator::template rebind<value_type>::other const *		value_allocator_const_pointer;
+			typedef RBT<Key, value_type, key_compare, allocator_type>				tree_type;
 			typedef typename tree_type::iterator 									iterator;
 			typedef typename tree_type::const_iterator 								const_iterator;
 			typedef typename tree_type::reverse_iterator 							reverse_iterator;
