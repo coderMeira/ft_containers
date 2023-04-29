@@ -2,9 +2,9 @@
 //*Template by pulgamecanica*//
 //***************************//
 
-#include "ft_containers.hpp"
+#include "../includes/ft_containers.hpp"
+# define FT 1
 #ifndef FT
-# define FT 0
 # define container std
 #else
 # define container ft

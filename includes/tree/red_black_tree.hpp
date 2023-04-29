@@ -7,6 +7,12 @@
 
 template <class Key, class T>
 class rbt_iterator;
+template <class Key, class T>
+class rbt_const_iterator;
+template <class Key, class T>
+class rbt_reverse_iterator;
+template <class Key, class T>
+class rbt_const_reverse_iterator;
 
 namespace ft
 {
@@ -152,9 +158,11 @@ namespace ft
 			typedef typename allocator_type::reference						reference;
 			typedef typename allocator_type::const_reference				const_reference;
 			typedef typename std::ptrdiff_t	 								difference_type;
-			// typedef typename std::bidirectional_iterator_tag				iterator_category;
-			typedef rbt_iterator<key_type, mapped_type>					iterator;
-			typedef rbt_iterator<key_type, const mapped_type>			const_iterator;
+			typedef typename std::bidirectional_iterator_tag				iterator_category;
+			typedef rbt_iterator<key_type, mapped_type>						iterator;
+			typedef rbt_iterator<key_type, const mapped_type>				const_iterator;
+			typedef rbt_reverse_iterator<key_type, mapped_type>				reverse_iterator;
+			typedef rbt_reverse_iterator<key_type, const mapped_type>		const_reverse_iterator;
 
 
 
